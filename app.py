@@ -213,7 +213,7 @@ def compute_chart_score(hist: pd.DataFrame) -> dict:
     elif rsi < 20:
         scores["RSI"] = 8  # 売られすぎ
     else:
-        scores["RSI"] = max(0, int(10 - (rsi - 60) * 0.4))
+        scores["RSI"] = max(0, int(10 - (rsi - 60) * 0.4) if not (rsi != rsi) else 0)
 
     # MA配列（15点）
     ma25  = close.rolling(25).mean().iloc[-1]
