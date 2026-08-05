@@ -1,0 +1,37 @@
+name: 毎朝スコア更新
+
+on:
+  schedule:
+    # 毎朝 JST 9:15（UTC 00:15）月〜金に実行
+    - cron: '15 0 * * 1-5'
+  workflow_dispatch:  # 手動実行も可能
+
+jobs:
+  update-scores:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 依存関係インストール
+        run: pip install -r requirements.txt
+
+      - name: スコア更新実行
+        run: python daily_update.py
+
+      - name: 結果をコミット・プッシュ
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add score_history.json
+          git diff --staged --quiet || git commit -m "📊 Daily score update $(date +'%Y-%m-%d')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
