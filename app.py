@@ -289,7 +289,7 @@ def compute_market_chart_score(hist: pd.DataFrame, ticker: str) -> dict:
     close = hist["Close"]
     price = safe_float(close.iloc[-1]) or 0
     prev  = safe_float(close.iloc[-2]) if len(close) >= 2 else price
-    chg_pct = (price - prev) / prev * 100 if prev else 0
+    chg_pct = (price - prev) / prev * 100 if prev and prev != 0 else 0
 
     # RSI
     delta = close.diff()
@@ -381,12 +381,14 @@ def fetch_market_indices():
             tk = yf.Ticker(ticker)
             hist = tk.history(period="1y", auto_adjust=True)
             info = tk.fast_info
-            # 当日の最新価格で上書き
-            latest = getattr(info, "last_price", None)
-            prev   = getattr(info, "previous_close", None)
-            if latest and prev and not hist.empty:
+            # 当日の最新価格で上書き（前日終値との比較用にprevも保持）
+            latest    = getattr(info, "last_price", None)
+            prev_close = getattr(info, "previous_close", None)
+            if latest and prev_close and not hist.empty:
+                # 前日終値を1つ前の行に、当日値を最終行に設定
+                if len(hist) >= 2:
+                    hist.loc[hist.index[-2], "Close"] = prev_close
                 hist.loc[hist.index[-1], "Close"] = latest
-                hist.loc[hist.index[-1], "Open"]  = prev
             results[ticker] = compute_market_chart_score(hist, ticker)
         except:
             results[ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
