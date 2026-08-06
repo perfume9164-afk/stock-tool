@@ -134,7 +134,7 @@ DEFAULT_WATCHLIST = {
 # 市場指標の定義
 MARKET_INDICES = {
     "^N225":  {"name": "日経平均",   "emoji": "🗾"},
-    "^1306.T":  {"name": "TOPIX",      "emoji": "📊"},
+    "^0P0000MLIF.T":  {"name": "TOPIX",      "emoji": "📊"},
     "^1570.T":  {"name": "日経VI",     "emoji": "⚡"},
     "JPY=X":  {"name": "ドル円",     "emoji": "💱"},
 }
