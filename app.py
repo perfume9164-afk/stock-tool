@@ -374,16 +374,29 @@ def fetch_stock_data(ticker: str):
 
 @st.cache_data(ttl=1800)
 def fetch_market_indices():
-    """市場指標を取得（30分キャッシュ）"""
-    import yfinance as yf
+    """市場指標を取得（stooq経由・30分キャッシュ）"""
+    from pandas_datareader import data as pdr
+    import datetime
+
+    STOOQ_MAP = {
+        "^N225":  "^nk225",
+        "1306.T": "^tpx",
+        "1570.T": "^nk225",  # レバはnk225で代替
+        "JPY=X":  "usdjpy",
+    }
+
+    end   = datetime.date.today()
+    start = end - datetime.timedelta(days=400)
     results = {}
-    for ticker in MARKET_INDICES:
+
+    for orig_ticker, stooq_ticker in STOOQ_MAP.items():
         try:
-            tk   = yf.Ticker(ticker)
-            hist = tk.history(period="1y")
-            results[ticker] = compute_market_chart_score(hist, ticker)
-        except:
-            results[ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
+            df = pdr.DataReader(stooq_ticker, "stooq", start, end)
+            df = df.sort_index()  # stooqは降順で返すので昇順に
+            results[orig_ticker] = compute_market_chart_score(df, orig_ticker)
+        except Exception as e:
+            results[orig_ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
+
     return results
 
 
