@@ -374,9 +374,8 @@ def fetch_stock_data(ticker: str):
 
 @st.cache_data(ttl=1800)
 def fetch_market_indices():
-    """市場指標を取得（stooq経由・30分キャッシュ）"""
-    from pandas_datareader import data as pdr
-    import datetime
+    """市場指標を取得（30分キャッシュ）"""
+    import yfinance as yf
 
 import yfinance as yf
     results = {}
