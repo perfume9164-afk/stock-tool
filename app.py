@@ -133,10 +133,10 @@ DEFAULT_WATCHLIST = {
 
 # 市場指標の定義
 MARKET_INDICES = {
-    "^N225":  {"name": "日経平均",  "emoji": "🗾"},
-    "1306.T": {"name": "TOPIX ETF", "emoji": "📊"},
-    "1321.T": {"name": "日経ETF",   "emoji": "⚡"},
-    "JPY=X":  {"name": "ドル円",    "emoji": "💱"},
+    "^N225":  {"name": "日経平均",   "emoji": "🗾"},
+    "^TOPX":  {"name": "TOPIX",      "emoji": "📊"},
+    "^JNIV":  {"name": "日経VI",     "emoji": "⚡"},
+    "JPY=X":  {"name": "ドル円",     "emoji": "💱"},
 }
 
 def load_watchlist() -> dict:
@@ -376,15 +376,11 @@ def fetch_stock_data(ticker: str):
 def fetch_market_indices():
     """市場指標を取得（30分キャッシュ）"""
     import yfinance as yf
-
-import yfinance as yf
     results = {}
     for ticker in MARKET_INDICES:
         try:
             tk   = yf.Ticker(ticker)
             hist = tk.history(period="1y")
-            if hist is None or len(hist) == 0:
-                raise ValueError("データなし")
             results[ticker] = compute_market_chart_score(hist, ticker)
         except:
             results[ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
