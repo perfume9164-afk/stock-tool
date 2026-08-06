@@ -133,10 +133,10 @@ DEFAULT_WATCHLIST = {
 
 # 市場指標の定義
 MARKET_INDICES = {
-    "^N225":  {"name": "日経平均",   "emoji": "🗾"},
-    "^0P0000MLIF.T":  {"name": "TOPIX",      "emoji": "📊"},
-    "^1570.T":  {"name": "日経VI",     "emoji": "⚡"},
-    "JPY=X":  {"name": "ドル円",     "emoji": "💱"},
+    "^N225":  {"name": "日経平均",  "emoji": "🗾"},
+    "1306.T": {"name": "TOPIX ETF", "emoji": "📊"},
+    "1321.T": {"name": "日経ETF",   "emoji": "⚡"},
+    "JPY=X":  {"name": "ドル円",    "emoji": "💱"},
 }
 
 def load_watchlist() -> dict:
@@ -378,25 +378,17 @@ def fetch_market_indices():
     from pandas_datareader import data as pdr
     import datetime
 
-    STOOQ_MAP = {
-        "^N225":  "^nk225",
-        "1306.T": "^tpx",
-        "1570.T": "^nk225",  # レバはnk225で代替
-        "JPY=X":  "usdjpy",
-    }
-
-    end   = datetime.date.today()
-    start = end - datetime.timedelta(days=400)
+import yfinance as yf
     results = {}
-
-    for orig_ticker, stooq_ticker in STOOQ_MAP.items():
+    for ticker in MARKET_INDICES:
         try:
-            df = pdr.DataReader(stooq_ticker, "stooq", start, end)
-            df = df.sort_index()  # stooqは降順で返すので昇順に
-            results[orig_ticker] = compute_market_chart_score(df, orig_ticker)
-        except Exception as e:
-            results[orig_ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
-
+            tk   = yf.Ticker(ticker)
+            hist = tk.history(period="1y")
+            if hist is None or len(hist) == 0:
+                raise ValueError("データなし")
+            results[ticker] = compute_market_chart_score(hist, ticker)
+        except:
+            results[ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
     return results
 
 
