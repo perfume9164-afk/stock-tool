@@ -133,10 +133,9 @@ DEFAULT_WATCHLIST = {
 
 # 市場指標の定義
 MARKET_INDICES = {
-    "^N225":  {"name": "日経平均",   "emoji": "🗾"},
-    "^TOPX":  {"name": "TOPIX",      "emoji": "📊"},
-    "^JNIV":  {"name": "日経VI",     "emoji": "⚡"},
-    "JPY=X":  {"name": "ドル円",     "emoji": "💱"},
+    "^N225":  {"name": "日経平均",  "emoji": "🗾"},
+    "1306.T": {"name": "TOPIX ETF", "emoji": "📊"},
+    "JPY=X":  {"name": "ドル円",    "emoji": "💱"},
 }
 
 def load_watchlist() -> dict:
@@ -379,8 +378,15 @@ def fetch_market_indices():
     results = {}
     for ticker in MARKET_INDICES:
         try:
-            tk   = yf.Ticker(ticker)
-            hist = tk.history(period="1y")
+            tk = yf.Ticker(ticker)
+            hist = tk.history(period="1y", auto_adjust=True)
+            info = tk.fast_info
+            # 当日の最新価格で上書き
+            latest = getattr(info, "last_price", None)
+            prev   = getattr(info, "previous_close", None)
+            if latest and prev and not hist.empty:
+                hist.loc[hist.index[-1], "Close"] = latest
+                hist.loc[hist.index[-1], "Open"]  = prev
             results[ticker] = compute_market_chart_score(hist, ticker)
         except:
             results[ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
