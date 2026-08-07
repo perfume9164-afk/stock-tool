@@ -1,5 +1,5 @@
 """
-日本株 AI スコアボード
+日本株 AI スコアボード v3
 依存: streamlit, yfinance, pandas, plotly
 起動: streamlit run app.py
 """
@@ -12,7 +12,6 @@ from datetime import datetime
 import json
 import os
 
-# ─── ページ設定 ────────────────────────────────────────────────
 st.set_page_config(
     page_title="日本株スコアボード",
     page_icon="📈",
@@ -20,7 +19,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─── スタイル ──────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap');
@@ -43,39 +41,29 @@ html, body, [class*="css"] { font-family: 'Noto Sans JP', sans-serif; }
     color: #4a7fa5; font-size: 0.8rem;
     font-family: 'IBM Plex Mono', monospace; margin-top: 0.3rem;
 }
-
-/* 市場環境パネル */
 .market-panel {
-    background: #060d1a;
-    border: 1px solid #1e3a5f;
-    border-radius: 12px;
-    padding: 1.2rem 1.6rem;
-    margin-bottom: 1.5rem;
+    background: #060d1a; border: 1px solid #1e3a5f;
+    border-radius: 12px; padding: 1.2rem 1.6rem; margin-bottom: 1.5rem;
 }
 .market-panel-title {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.65rem; color: #4a7fa5;
     letter-spacing: 0.15em; text-transform: uppercase;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #1e3a5f; padding-bottom: 0.4rem;
+    margin-bottom: 1rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.4rem;
 }
 .market-index-card {
-    background: #0d1f3c;
-    border: 1px solid #1e3a5f;
-    border-radius: 8px;
-    padding: 0.8rem 1rem;
+    background: #0d1f3c; border: 1px solid #1e3a5f;
+    border-radius: 8px; padding: 0.8rem 1rem;
 }
-.market-verdict-good  { color: #00e5a0; font-weight: 700; }
+.market-verdict-good    { color: #00e5a0; font-weight: 700; }
 .market-verdict-caution { color: #ffd54f; font-weight: 700; }
-.market-verdict-bad   { color: #ef5350; font-weight: 700; }
+.market-verdict-bad     { color: #ef5350; font-weight: 700; }
 
 .score-card {
     background: #0d1f3c; border: 1px solid #1e3a5f;
     border-radius: 10px; padding: 1.2rem 1.4rem;
-    margin-bottom: 0.8rem; transition: border-color 0.2s; cursor: pointer;
+    margin-bottom: 0.8rem;
 }
-.score-card:hover { border-color: #2d6a9f; }
-
 .score-badge { font-family: 'IBM Plex Mono', monospace; font-size: 2.2rem; font-weight: 600; line-height: 1; }
 .score-strong-buy { color: #00e5a0; }
 .score-buy        { color: #4fc3f7; }
@@ -94,7 +82,6 @@ html, body, [class*="css"] { font-family: 'Noto Sans JP', sans-serif; }
     padding: 0.2rem 0.6rem; font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem; color: #7fb3d3;
 }
-
 .verdict {
     display: inline-block; padding: 0.2rem 0.7rem; border-radius: 4px;
     font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
@@ -111,17 +98,34 @@ html, body, [class*="css"] { font-family: 'Noto Sans JP', sans-serif; }
     border-bottom: 1px solid #1e3a5f; padding-bottom: 0.4rem; margin-bottom: 1rem;
 }
 
+/* トレード日誌 */
+.journal-card {
+    background: #0d1f3c; border: 1px solid #1e3a5f;
+    border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.6rem;
+}
+.journal-ticker { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #4a7fa5; }
+.journal-comment { font-size: 0.9rem; color: #e8f4ff; margin: 0.3rem 0; }
+.journal-meta { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #7fb3d3; }
+.confidence-star { color: #ffd54f; }
+
 section[data-testid="stSidebar"] { background: #0a0f1e; border-right: 1px solid #1e3a5f; }
 .stMetric { background: transparent !important; }
 [data-testid="metric-container"] { background: #0d1f3c; border: 1px solid #1e3a5f; border-radius: 8px; padding: 0.8rem; }
 .stAlert { border-radius: 8px; }
+
+/* 追加フォーム */
+.add-form {
+    background: #0d1f3c; border: 1px solid #1e3a5f;
+    border-radius: 8px; padding: 1rem; margin-bottom: 1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
 
-# ─── データレイヤー ────────────────────────────────────────────
-SCORE_HISTORY_FILE = "score_history.json"
-WATCHLIST_FILE     = "watchlist.json"
+# ─── ファイル管理 ──────────────────────────────────────────────
+SCORE_HISTORY_FILE  = "score_history.json"
+WATCHLIST_FILE      = "watchlist.json"
+JOURNAL_FILE        = "journal.json"
 
 DEFAULT_WATCHLIST = {
     "8113.T": "ユニ・チャーム",
@@ -131,43 +135,39 @@ DEFAULT_WATCHLIST = {
     "5016.T": "JX金属",
 }
 
-# 市場指標の定義
 MARKET_INDICES = {
     "^N225":  {"name": "日経平均",  "emoji": "🗾"},
     "1306.T": {"name": "TOPIX ETF", "emoji": "📊"},
     "JPY=X":  {"name": "ドル円",    "emoji": "💱"},
 }
 
-def load_watchlist() -> dict:
-    if os.path.exists(WATCHLIST_FILE):
-        with open(WATCHLIST_FILE) as f:
+def load_json(path, default):
+    if os.path.exists(path):
+        with open(path) as f:
             return json.load(f)
-    return DEFAULT_WATCHLIST
+    return default
 
-def save_watchlist(wl: dict):
-    with open(WATCHLIST_FILE, "w") as f:
-        json.dump(wl, f, ensure_ascii=False, indent=2)
+def save_json(path, data):
+    with open(path, "w") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-def load_history() -> dict:
-    if os.path.exists(SCORE_HISTORY_FILE):
-        with open(SCORE_HISTORY_FILE) as f:
-            return json.load(f)
-    return {}
-
-def save_history(history: dict):
-    with open(SCORE_HISTORY_FILE, "w") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
+def load_watchlist():  return load_json(WATCHLIST_FILE, DEFAULT_WATCHLIST)
+def save_watchlist(d): save_json(WATCHLIST_FILE, d)
+def load_history():    return load_json(SCORE_HISTORY_FILE, {})
+def save_history(d):   save_json(SCORE_HISTORY_FILE, d)
+def load_journal():    return load_json(JOURNAL_FILE, [])
+def save_journal(d):   save_json(JOURNAL_FILE, d)
 
 
-# ─── スコアリングエンジン ──────────────────────────────────────
+# ─── スコアリング ──────────────────────────────────────────────
 def safe_float(val):
     try:
         v = float(val)
-        return None if (v != v) else v  # NaN check
+        return None if (v != v) else v
     except:
         return None
 
-def compute_chart_score(hist: pd.DataFrame) -> dict:
+def compute_chart_score(hist):
     if hist is None or len(hist) < 30:
         return {"total": 0, "details": {}, "error": "データ不足"}
 
@@ -180,8 +180,7 @@ def compute_chart_score(hist: pd.DataFrame) -> dict:
     gain  = delta.clip(lower=0).rolling(14).mean()
     loss  = (-delta.clip(upper=0)).rolling(14).mean()
     rs    = gain / loss.replace(0, float("nan"))
-    rsi_s = (100 - 100 / (1 + rs)).iloc[-1]
-    rsi   = safe_float(rsi_s) or 50.0
+    rsi   = safe_float((100 - 100 / (1 + rs)).iloc[-1]) or 50.0
 
     if 30 <= rsi <= 50:   scores["RSI"] = 10
     elif 50 < rsi <= 60:  scores["RSI"] = 7
@@ -202,12 +201,10 @@ def compute_chart_score(hist: pd.DataFrame) -> dict:
     scores["MA配列"] = ms
 
     # 出来高（10点）
-    vol_recent = volume.iloc[-10:].mean()
-    vol_past   = volume.iloc[-30:-10].mean()
-    vol_ratio  = vol_recent / vol_past if vol_past > 0 else 1
+    vol_ratio = volume.iloc[-10:].mean() / volume.iloc[-30:-10].mean() if volume.iloc[-30:-10].mean() > 0 else 1
     scores["出来高"] = min(10, int(vol_ratio * 7))
 
-    # ボリンジャーバンド（10点）
+    # BB（10点）
     ma20     = close.rolling(20).mean()
     std20    = close.rolling(20).std()
     bb_lower = safe_float((ma20 - 2 * std20).iloc[-1]) or 0
@@ -219,16 +216,14 @@ def compute_chart_score(hist: pd.DataFrame) -> dict:
     elif bb_pos <= 0.6: scores["BB"] = 5
     else:               scores["BB"] = max(0, int(10 - bb_pos * 10))
 
-    # 52週レンジ（5点）
+    # 52週位置（5点）
     hi52      = safe_float(close.rolling(252).max().iloc[-1]) if len(close) >= 252 else safe_float(close.max())
     lo52      = safe_float(close.rolling(252).min().iloc[-1]) if len(close) >= 252 else safe_float(close.min())
     range_pos = (price - lo52) / (hi52 - lo52) if (hi52 and lo52 and hi52 - lo52 > 0) else 0.5
-
     scores["52週位置"] = 5 if range_pos <= 0.3 else (3 if range_pos <= 0.5 else 1)
 
     return {
-        "total": sum(scores.values()),
-        "details": scores,
+        "total": sum(scores.values()), "details": scores,
         "rsi": round(rsi, 1),
         "ma25": round(ma25, 1) if ma25 else None,
         "ma75": round(ma75, 1) if ma75 else None,
@@ -237,10 +232,8 @@ def compute_chart_score(hist: pd.DataFrame) -> dict:
         "range_pos": round(range_pos * 100, 1),
     }
 
-
-def compute_funda_score(info: dict) -> dict:
+def compute_funda_score(info):
     scores = {}
-
     per = safe_float(info.get("trailingPE") or info.get("forwardPE"))
     scores["PER"] = (10 if per < 15 else 8 if per < 20 else 6 if per < 30 else 4 if per < 40 else 2) if per else 0
 
@@ -272,85 +265,53 @@ def compute_funda_score(info: dict) -> dict:
     scores["財務"] = (5 if de < 30 else 4 if de < 60 else 3 if de < 100 else 1) if de is not None else 0
 
     return {
-        "total": sum(scores.values()),
-        "details": scores,
+        "total": sum(scores.values()), "details": scores,
         "per": per, "pbr": pbr,
         "roe": round(roe * 100, 1) if roe else None,
         "rev_growth": round(rg * 100, 1) if rg else None,
         "div_yield": round(dy * 100, 2) if dy else None,
     }
 
-
-def compute_market_chart_score(hist: pd.DataFrame, ticker: str) -> dict:
-    """市場指標専用スコア（チャートのみ・30点満点）"""
+def compute_market_chart_score(hist, ticker):
     if hist is None or len(hist) < 30:
-        return {"total": 0, "trend": "—", "rsi": None, "chg_pct": None}
+        return {"total": 0, "trend": "—", "rsi": None, "chg_pct": None, "price": None}
 
-    close = hist["Close"]
-    price = safe_float(close.iloc[-1]) or 0
-    prev  = safe_float(close.iloc[-2]) if len(close) >= 2 else price
+    close   = hist["Close"]
+    price   = safe_float(close.iloc[-1]) or 0
+    prev    = safe_float(close.iloc[-2]) if len(close) >= 2 else price
     chg_pct = (price - prev) / prev * 100 if prev and prev != 0 else 0
 
-    # RSI
     delta = close.diff()
     gain  = delta.clip(lower=0).rolling(14).mean()
     loss  = (-delta.clip(upper=0)).rolling(14).mean()
     rs    = gain / loss.replace(0, float("nan"))
-    rsi_s = (100 - 100 / (1 + rs)).iloc[-1]
-    rsi   = safe_float(rsi_s) or 50.0
+    rsi   = safe_float((100 - 100 / (1 + rs)).iloc[-1]) or 50.0
 
-    # MA
     ma25  = safe_float(close.rolling(25).mean().iloc[-1])
-    ma75  = safe_float(close.rolling(75).mean().iloc[-1]) if len(close) >= 75 else None
+    ma75  = safe_float(close.rolling(75).mean().iloc[-1])  if len(close) >= 75  else None
     ma200 = safe_float(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else None
 
-    score = 0
-
-    # 日経VI・ドル円は逆方向判定
-    if ticker == "^JNIV":
-        # VI：低いほど市場が安定 → 高スコア
-        score = 10 if price < 20 else 7 if price < 25 else 4 if price < 30 else 1
-        trend = "安定" if price < 20 else "やや不安" if price < 25 else "警戒"
-    elif ticker == "JPY=X":
-        # ドル円：適正レンジ（140〜155円）を高スコアに
+    if ticker == "JPY=X":
         score = 8 if 140 <= price <= 155 else 5 if 130 <= price < 140 else 3
         trend = "適正" if 140 <= price <= 155 else "円高" if price < 140 else "円安"
     else:
-        # 日経・TOPIX：MA配列と位置で判定
         ma_ok = sum([
-            1 if (ma25 and price > ma25) else 0,
-            1 if (ma75 and price > ma75) else 0,
+            1 if (ma25  and price > ma25)  else 0,
+            1 if (ma75  and price > ma75)  else 0,
             1 if (ma200 and price > ma200) else 0,
         ])
-        rsi_ok = 1 if 40 <= rsi <= 65 else 0
-        score = ma_ok * 3 + rsi_ok * 1  # 最大10点
+        score = ma_ok * 3 + (1 if 40 <= rsi <= 65 else 0)
         trend = "上昇トレンド" if ma_ok >= 2 else "調整中" if ma_ok == 1 else "下降トレンド"
 
-    return {
-        "total": score,
-        "trend": trend,
-        "rsi": round(rsi, 1),
-        "chg_pct": round(chg_pct, 2),
-        "price": price,
-        "ma25": ma25, "ma75": ma75, "ma200": ma200,
-    }
+    return {"total": score, "trend": trend, "rsi": round(rsi, 1), "chg_pct": round(chg_pct, 2), "price": price}
 
-
-def market_environment_verdict(scores: dict) -> tuple[str, str]:
-    """市場全体の環境判定"""
-    n225  = scores.get("^N225", {}).get("total", 0)
-    topix = scores.get("^TOPX", {}).get("total", 0)
-    vi    = scores.get("^JNIV", {}).get("total", 5)
-    fx    = scores.get("JPY=X", {}).get("total", 5)
-
-    total = n225 + topix + vi + fx  # 最大40点
-
-    if total >= 28:   return "買い場", "market-verdict-good"
-    elif total >= 18: return "中立",   "market-verdict-caution"
+def market_environment_verdict(scores):
+    total = sum(s.get("total", 0) for s in scores.values())
+    if total >= 20:   return "買い場", "market-verdict-good"
+    elif total >= 12: return "中立",   "market-verdict-caution"
     else:             return "慎重",   "market-verdict-bad"
 
-
-def verdict(score: int) -> tuple[str, str, str]:
+def verdict(score):
     if score >= 80: return "強買い", "score-strong-buy", "verdict-sb"
     if score >= 65: return "買い",   "score-buy",        "verdict-b"
     if score >= 50: return "様子見", "score-watch",      "verdict-w"
@@ -358,7 +319,7 @@ def verdict(score: int) -> tuple[str, str, str]:
 
 
 @st.cache_data(ttl=3600)
-def fetch_stock_data(ticker: str):
+def fetch_stock_data(ticker):
     try:
         import yfinance as yf
         tk   = yf.Ticker(ticker)
@@ -366,36 +327,40 @@ def fetch_stock_data(ticker: str):
         info = tk.info
         return hist, info, None
     except ImportError:
-        return None, {}, "yfinanceが見つかりません。`pip install yfinance`を実行してください。"
+        return None, {}, "yfinanceが見つかりません"
     except Exception as e:
         return None, {}, str(e)
 
-
 @st.cache_data(ttl=1800)
 def fetch_market_indices():
-    """市場指標を取得（30分キャッシュ）"""
     import yfinance as yf
     results = {}
     for ticker in MARKET_INDICES:
         try:
-            tk = yf.Ticker(ticker)
+            tk   = yf.Ticker(ticker)
             hist = tk.history(period="1y", auto_adjust=True)
             info = tk.fast_info
-            # 当日の最新価格で上書き（前日終値との比較用にprevも保持）
-            latest    = getattr(info, "last_price", None)
+            latest     = getattr(info, "last_price", None)
             prev_close = getattr(info, "previous_close", None)
-            if latest and prev_close and not hist.empty:
-                # 前日終値を1つ前の行に、当日値を最終行に設定
-                if len(hist) >= 2:
-                    hist.loc[hist.index[-2], "Close"] = prev_close
+            if latest and prev_close and not hist.empty and len(hist) >= 2:
+                hist.loc[hist.index[-2], "Close"] = prev_close
                 hist.loc[hist.index[-1], "Close"] = latest
             results[ticker] = compute_market_chart_score(hist, ticker)
         except:
             results[ticker] = {"total": 0, "trend": "取得失敗", "chg_pct": None, "price": None}
     return results
 
+@st.cache_data(ttl=3600)
+def get_company_name(ticker):
+    """証券コードから会社名を自動取得"""
+    try:
+        import yfinance as yf
+        info = yf.Ticker(ticker).info
+        return info.get("longName") or info.get("shortName") or ticker
+    except:
+        return ticker
 
-def score_stock(ticker: str, name: str) -> dict:
+def score_stock(ticker, name):
     hist, info, err = fetch_stock_data(ticker)
     if err:
         return {"ticker": ticker, "name": name, "error": err}
@@ -405,9 +370,9 @@ def score_stock(ticker: str, name: str) -> dict:
     total = chart["total"] + funda["total"]
     label, score_cls, verdict_cls = verdict(total)
 
-    price = safe_float(info.get("currentPrice") or info.get("regularMarketPrice")) or 0
-    prev  = safe_float(info.get("regularMarketPreviousClose")) or price
-    chg   = price - prev
+    price   = safe_float(info.get("currentPrice") or info.get("regularMarketPrice")) or 0
+    prev    = safe_float(info.get("regularMarketPreviousClose")) or price
+    chg     = price - prev
     chg_pct = chg / prev * 100 if prev else 0
 
     return {
@@ -419,11 +384,9 @@ def score_stock(ticker: str, name: str) -> dict:
     }
 
 
-# ─── UI コンポーネント ─────────────────────────────────────────
-def render_market_panel(market_scores: dict):
-    """市場環境パネル"""
+# ─── UI ───────────────────────────────────────────────────────
+def render_market_panel(market_scores):
     env_label, env_cls = market_environment_verdict(market_scores)
-
     st.markdown(f"""
     <div class="market-panel">
       <div class="market-panel-title">
@@ -433,14 +396,12 @@ def render_market_panel(market_scores: dict):
     </div>
     """, unsafe_allow_html=True)
 
-    cols = st.columns(4)
+    cols = st.columns(len(MARKET_INDICES))
     for i, (ticker, meta) in enumerate(MARKET_INDICES.items()):
-        s = market_scores.get(ticker, {})
-        price   = s.get("price")
-        chg_pct = s.get("chg_pct")
-        trend   = s.get("trend", "—")
-        score   = s.get("total", 0)
-
+        s         = market_scores.get(ticker, {})
+        price     = s.get("price")
+        chg_pct   = s.get("chg_pct")
+        trend     = s.get("trend", "—")
         price_str = f"{price:,.1f}" if price else "—"
         chg_str   = f"{chg_pct:+.2f}%" if chg_pct is not None else "—"
         chg_color = "#00e5a0" if (chg_pct or 0) >= 0 else "#ef5350"
@@ -456,72 +417,113 @@ def render_market_panel(market_scores: dict):
             """, unsafe_allow_html=True)
 
 
-def render_card(r: dict):
+def render_watchlist_manager(watchlist):
+    """銘柄追加UI（サイドバー）"""
+    st.markdown('<div class="section-head">銘柄追加</div>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        code = st.text_input("証券コード", placeholder="例: 7203", label_visibility="collapsed").strip()
+    with col2:
+        add_btn = st.button("追加", use_container_width=True, type="primary")
+
+    if add_btn and code:
+        ticker = code + ".T" if not code.endswith(".T") else code
+        if ticker in watchlist:
+            st.warning("すでに追加済みです")
+        else:
+            with st.spinner("銘柄情報を取得中…"):
+                name = get_company_name(ticker)
+            watchlist[ticker] = name
+            save_watchlist(watchlist)
+            st.cache_data.clear()
+            st.success(f"✅ {name} を追加しました")
+            st.rerun()
+
+
+def render_card_with_delete(r, watchlist):
+    """削除ボタン付きスコアカード"""
     if "error" in r:
-        st.error(f"**{r['name']}（{r['ticker']}）** — {r['error']}")
+        col1, col2 = st.columns([10, 1])
+        with col1:
+            st.error(f"**{r['name']}（{r['ticker']}）** — {r['error']}")
+        with col2:
+            if st.button("✕", key=f"del_{r['ticker']}", help="削除"):
+                del watchlist[r["ticker"]]
+                save_watchlist(watchlist)
+                st.rerun()
         return
 
     chg_cls  = "price-change-pos" if r["chg"] >= 0 else "price-change-neg"
     chg_sign = "+" if r["chg"] >= 0 else ""
     v_label, _, v_cls = verdict(r["total"])
-
     fa = r["funda"]
     ch = r["chart"]
 
-    per_str = f"PER {fa['per']:.1f}x"      if fa.get("per")       else "PER —"
-    pbr_str = f"PBR {fa['pbr']:.2f}x"      if fa.get("pbr")       else "PBR —"
-    roe_str = f"ROE {fa['roe']:.1f}%"       if fa.get("roe")       else "ROE —"
+    per_str = f"PER {fa['per']:.1f}x"       if fa.get("per")       else "PER —"
+    pbr_str = f"PBR {fa['pbr']:.2f}x"       if fa.get("pbr")       else "PBR —"
+    roe_str = f"ROE {fa['roe']:.1f}%"        if fa.get("roe")       else "ROE —"
     rsi_str = f"RSI {ch.get('rsi','—')}"
-    rng_str = f"52W位置 {ch.get('range_pos','—')}%"
+    rng_str = f"52W {ch.get('range_pos','—')}%"
     div_str = f"配当 {fa['div_yield']:.2f}%" if fa.get("div_yield") else "配当 —"
 
-    st.markdown(f"""
-    <div class="score-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div class="ticker-label">{r['ticker']}</div>
-          <div class="company-name">{r['name']}</div>
-          <div class="price-display">
-            ¥{r['price']:,.0f}&nbsp;
-            <span class="{chg_cls}">{chg_sign}{r['chg']:,.0f}（{chg_sign}{r['chg_pct']:.2f}%）</span>
+    # カードと削除ボタンを横並び
+    card_col, del_col = st.columns([12, 1])
+    with card_col:
+        st.markdown(f"""
+        <div class="score-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="ticker-label">{r['ticker']}</div>
+              <div class="company-name">{r['name']}</div>
+              <div class="price-display">
+                ¥{r['price']:,.0f}&nbsp;
+                <span class="{chg_cls}">{chg_sign}{r['chg']:,.0f}（{chg_sign}{r['chg_pct']:.2f}%）</span>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div class="score-badge {r['score_cls']}">{r['total']}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a7fa5;margin-top:0.2rem;">/ 100点</div>
+              <div style="margin-top:0.4rem;"><span class="verdict {v_cls}">{v_label}</span></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.8rem;margin-top:0.8rem;">
+            <div style="flex:1;background:#0a0f1e;border-radius:6px;padding:0.5rem 0.8rem;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">FUNDA {fa['total']}/50</div>
+              <div style="background:#1e3a5f;border-radius:3px;height:6px;">
+                <div style="background:#4fc3f7;width:{fa['total']*2}%;height:6px;border-radius:3px;"></div>
+              </div>
+            </div>
+            <div style="flex:1;background:#0a0f1e;border-radius:6px;padding:0.5rem 0.8rem;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">CHART {ch['total']}/50</div>
+              <div style="background:#1e3a5f;border-radius:3px;height:6px;">
+                <div style="background:#00e5a0;width:{ch['total']*2}%;height:6px;border-radius:3px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-pill">{per_str}</div>
+            <div class="metric-pill">{pbr_str}</div>
+            <div class="metric-pill">{roe_str}</div>
+            <div class="metric-pill">{rsi_str}</div>
+            <div class="metric-pill">{rng_str}</div>
+            <div class="metric-pill">{div_str}</div>
           </div>
         </div>
-        <div style="text-align:right;">
-          <div class="score-badge {r['score_cls']}">{r['total']}</div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:#4a7fa5;margin-top:0.2rem;">/ 100点</div>
-          <div style="margin-top:0.4rem;"><span class="verdict {v_cls}">{v_label}</span></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:0.8rem;margin-top:0.8rem;">
-        <div style="flex:1;background:#0a0f1e;border-radius:6px;padding:0.5rem 0.8rem;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">FUNDA {fa['total']}/50</div>
-          <div style="background:#1e3a5f;border-radius:3px;height:6px;">
-            <div style="background:#4fc3f7;width:{fa['total']*2}%;height:6px;border-radius:3px;"></div>
-          </div>
-        </div>
-        <div style="flex:1;background:#0a0f1e;border-radius:6px;padding:0.5rem 0.8rem;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">CHART {ch['total']}/50</div>
-          <div style="background:#1e3a5f;border-radius:3px;height:6px;">
-            <div style="background:#00e5a0;width:{ch['total']*2}%;height:6px;border-radius:3px;"></div>
-          </div>
-        </div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-pill">{per_str}</div>
-        <div class="metric-pill">{pbr_str}</div>
-        <div class="metric-pill">{roe_str}</div>
-        <div class="metric-pill">{rsi_str}</div>
-        <div class="metric-pill">{rng_str}</div>
-        <div class="metric-pill">{div_str}</div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+
+    with del_col:
+        st.markdown("<div style='margin-top:1.2rem;'></div>", unsafe_allow_html=True)
+        if st.button("✕", key=f"del_{r['ticker']}", help=f"{r['name']}を削除"):
+            del watchlist[r["ticker"]]
+            save_watchlist(watchlist)
+            st.cache_data.clear()
+            st.rerun()
 
 
-def render_detail(r: dict):
+def render_detail(r):
     if "error" in r:
         return
-
     st.markdown(f'<div class="section-head">詳細分析 — {r["name"]}</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
@@ -575,11 +577,10 @@ def render_detail(r: dict):
         st.plotly_chart(fig3, use_container_width=True)
 
 
-def render_history_chart(ticker: str, history: dict):
+def render_history_chart(ticker, history):
     if ticker not in history or len(history[ticker]) < 2:
         st.info("スコア履歴は2日分以上のデータが蓄積されると表示されます。")
         return
-
     records = history[ticker]
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=[r["date"] for r in records], y=[r["total"] for r in records],
@@ -595,7 +596,102 @@ def render_history_chart(ticker: str, history: dict):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# ─── メインUI ─────────────────────────────────────────────────
+def render_journal_tab(watchlist):
+    """トレード日誌タブ"""
+    journal = load_journal()
+
+    st.markdown('<div class="section-head">新規メモを追加</div>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        ticker_options = list(watchlist.keys())
+        selected_ticker = st.selectbox(
+            "銘柄", ticker_options,
+            format_func=lambda t: f"{t} {watchlist[t]}"
+        )
+        j_date = st.date_input("日付", value=datetime.now().date())
+        confidence = st.select_slider(
+            "確信度", options=[1, 2, 3, 4, 5],
+            format_func=lambda x: "★" * x
+        )
+
+    with col2:
+        comment = st.text_area(
+            "チャートコメント",
+            placeholder="例：200MA接触、出来高増加。底値圏と判断。RSI30台で売られすぎ。",
+            height=100,
+        )
+        col_in, col_out = st.columns(2)
+        with col_in:
+            in_point  = st.number_input("INポイント（円）",  min_value=0.0, step=1.0, format="%.0f")
+        with col_out:
+            out_point = st.number_input("OUTポイント（円）", min_value=0.0, step=1.0, format="%.0f")
+
+    if st.button("📝 メモを保存", type="primary"):
+        if comment:
+            entry = {
+                "id":         datetime.now().strftime("%Y%m%d%H%M%S"),
+                "date":       str(j_date),
+                "ticker":     selected_ticker,
+                "name":       watchlist.get(selected_ticker, selected_ticker),
+                "comment":    comment,
+                "in_point":   in_point if in_point > 0 else None,
+                "out_point":  out_point if out_point > 0 else None,
+                "confidence": confidence,
+            }
+            journal.insert(0, entry)
+            save_journal(journal)
+            st.success("保存しました ✅")
+            st.rerun()
+        else:
+            st.warning("コメントを入力してください")
+
+    st.divider()
+    st.markdown('<div class="section-head">メモ一覧</div>', unsafe_allow_html=True)
+
+    # フィルター
+    filter_col1, filter_col2 = st.columns([1, 3])
+    with filter_col1:
+        filter_ticker = st.selectbox(
+            "銘柄フィルター",
+            ["すべて"] + list(watchlist.keys()),
+            format_func=lambda t: "すべて" if t == "すべて" else f"{t} {watchlist.get(t,'')}"
+        )
+
+    filtered = [j for j in journal if filter_ticker == "すべて" or j["ticker"] == filter_ticker]
+
+    if not filtered:
+        st.info("メモがまだありません。上のフォームから追加してください。")
+    else:
+        for entry in filtered:
+            stars     = "★" * entry.get("confidence", 1) + "☆" * (5 - entry.get("confidence", 1))
+            in_str    = f"IN: ¥{entry['in_point']:,.0f}"  if entry.get("in_point")  else "IN: —"
+            out_str   = f"OUT: ¥{entry['out_point']:,.0f}" if entry.get("out_point") else "OUT: —"
+
+            card_col, del_col = st.columns([12, 1])
+            with card_col:
+                st.markdown(f"""
+                <div class="journal-card">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                      <span class="journal-ticker">{entry['ticker']} {entry['name']}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#4a7fa5;margin-left:1rem;">{entry['date']}</span>
+                    </div>
+                    <span class="confidence-star" style="font-size:0.8rem;">{stars}</span>
+                  </div>
+                  <div class="journal-comment" style="margin:0.5rem 0;">{entry['comment']}</div>
+                  <div class="journal-meta">{in_str} &nbsp;｜&nbsp; {out_str}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with del_col:
+                st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+                if st.button("✕", key=f"jdel_{entry['id']}", help="削除"):
+                    journal = [j for j in journal if j["id"] != entry["id"]]
+                    save_journal(journal)
+                    st.rerun()
+
+
+# ─── メイン ───────────────────────────────────────────────────
 def main():
     st.markdown(f"""
     <div class="main-header">
@@ -608,26 +704,8 @@ def main():
     history   = load_history()
 
     with st.sidebar:
-        st.markdown('<div class="section-head">ウォッチリスト管理</div>', unsafe_allow_html=True)
-
-        with st.expander("＋ 銘柄を追加", expanded=False):
-            new_ticker = st.text_input("ティッカー（例: 7203.T）").strip().upper()
-            new_name   = st.text_input("銘柄名（例: トヨタ自動車）").strip()
-            if st.button("追加", use_container_width=True):
-                if new_ticker and new_name:
-                    watchlist[new_ticker] = new_name
-                    save_watchlist(watchlist)
-                    st.success(f"{new_name} を追加しました")
-                    st.rerun()
-
-        if watchlist:
-            with st.expander("－ 銘柄を削除", expanded=False):
-                del_ticker = st.selectbox("削除する銘柄", list(watchlist.keys()),
-                                          format_func=lambda t: f"{t} {watchlist[t]}")
-                if st.button("削除", use_container_width=True):
-                    del watchlist[del_ticker]
-                    save_watchlist(watchlist)
-                    st.rerun()
+        render_watchlist_manager(watchlist)
+        watchlist = load_watchlist()  # 追加後に再読み込み
 
         st.divider()
         st.markdown('<div class="section-head">スコア基準</div>', unsafe_allow_html=True)
@@ -641,12 +719,12 @@ def main():
         """, unsafe_allow_html=True)
 
         st.divider()
-        if st.button("🔄 データ更新（全銘柄）", use_container_width=True, type="primary"):
+        if st.button("🔄 データ更新", use_container_width=True, type="primary"):
             st.cache_data.clear()
             st.rerun()
 
         st.markdown('<div class="section-head" style="margin-top:1.5rem;">スコアを保存</div>', unsafe_allow_html=True)
-        save_note = st.text_input("メモ（任意）", placeholder="今日の相場メモ...")
+        save_note = st.text_input("メモ", placeholder="今日の相場メモ...")
         if st.button("📝 本日スコアを保存", use_container_width=True):
             today = datetime.now().strftime("%Y-%m-%d")
             for ticker, name in watchlist.items():
@@ -663,19 +741,18 @@ def main():
             save_history(history)
             st.success("保存しました ✅")
 
-    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴"])
+    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌"])
 
     with tabs[0]:
-        # 市場環境パネル
         with st.spinner("市場指標を取得中…"):
             market_scores = fetch_market_indices()
         render_market_panel(market_scores)
 
         if not watchlist:
-            st.info("サイドバーから銘柄を追加してください。")
+            st.info("左のサイドバーから証券コードを入力して銘柄を追加してください。")
         else:
             results = []
-            with st.spinner("銘柄データ取得中…"):
+            with st.spinner("データ取得中…"):
                 for ticker, name in watchlist.items():
                     results.append(score_stock(ticker, name))
 
@@ -683,7 +760,7 @@ def main():
             results_ng = [r for r in results if "error" in r]
 
             if results_ok:
-                avg = sum(r["total"] for r in results_ok) / len(results_ok)
+                avg  = sum(r["total"] for r in results_ok) / len(results_ok)
                 best = results_ok[0]
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("📊 平均スコア", f"{avg:.1f}点")
@@ -693,9 +770,9 @@ def main():
                 st.divider()
 
             for r in results_ok:
-                render_card(r)
+                render_card_with_delete(r, watchlist)
             for r in results_ng:
-                st.error(f"**{r['name']}（{r['ticker']}）** — {r['error']}")
+                render_card_with_delete(r, watchlist)
 
     with tabs[1]:
         if not watchlist:
@@ -711,16 +788,18 @@ def main():
         if not watchlist:
             st.info("サイドバーから銘柄を追加してください。")
         else:
-            selected_h = st.selectbox("銘柄を選択（履歴）", list(watchlist.keys()),
+            selected_h = st.selectbox("銘柄を選択", list(watchlist.keys()),
                                       format_func=lambda t: f"{t}　{watchlist[t]}", key="history_select")
             st.markdown(f'<div class="section-head">スコア推移 — {watchlist[selected_h]}</div>', unsafe_allow_html=True)
             render_history_chart(selected_h, history)
-
             if selected_h in history and history[selected_h]:
                 df_h = pd.DataFrame(history[selected_h])
                 df_h = df_h.sort_values("date", ascending=False).reset_index(drop=True)
                 df_h.columns = ["日付", "合計", "ファンダ", "チャート", "株価", "メモ"]
                 st.dataframe(df_h, use_container_width=True)
+
+    with tabs[3]:
+        render_journal_tab(watchlist)
 
 
 if __name__ == "__main__":
