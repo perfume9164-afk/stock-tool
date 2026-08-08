@@ -101,14 +101,66 @@ JP_NAME_MASTER = {
 }
 
 def load_json(path, default):
+    """GitHubから読み込み（Streamlit Cloud対応）"""
+    try:
+        import base64, urllib.request
+        token = st.secrets.get("GITHUB_TOKEN", "")
+        repo  = st.secrets.get("GITHUB_REPO", "")
+        if token and repo:
+            api_url = f"https://api.github.com/repos/{repo}/contents/{path}"
+            headers = {"Authorization": f"token {token}"}
+            req = urllib.request.Request(api_url, headers=headers)
+            with urllib.request.urlopen(req) as res:
+                content = json.loads(res.read())["content"]
+                data = json.loads(base64.b64decode(content).decode())
+                # ローカルにも書き出しておく
+                with open(path, "w") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+                return data
+    except:
+        pass
+    # フォールバック：ローカルファイル
     if os.path.exists(path):
         with open(path) as f:
             return json.load(f)
     return default
 
 def save_json(path, data):
+    """ローカルに保存してGitHubにも同期"""
     with open(path, "w") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    # Streamlit Cloud環境ではGitHubに保存
+    try:
+        import base64, urllib.request, urllib.error
+        token = st.secrets.get("GITHUB_TOKEN", "")
+        repo  = st.secrets.get("GITHUB_REPO", "")
+        if not token or not repo:
+            return
+        api_url = f"https://api.github.com/repos/{repo}/contents/{path}"
+        headers = {
+            "Authorization": f"token {token}",
+            "Content-Type": "application/json",
+        }
+        content = base64.b64encode(
+            json.dumps(data, ensure_ascii=False, indent=2).encode()
+        ).decode()
+        # 既存ファイルのSHAを取得
+        req = urllib.request.Request(api_url, headers=headers)
+        try:
+            with urllib.request.urlopen(req) as res:
+                sha = json.loads(res.read())["sha"]
+        except:
+            sha = None
+        # PUT（作成 or 更新）
+        payload = json.dumps({
+            "message": f"auto: update {path}",
+            "content": content,
+            **({"sha": sha} if sha else {}),
+        }).encode()
+        req2 = urllib.request.Request(api_url, data=payload, headers=headers, method="PUT")
+        urllib.request.urlopen(req2)
+    except Exception:
+        pass  # GitHub保存失敗してもアプリは止めない
 
 def load_watchlist():  return load_json(WATCHLIST_FILE, DEFAULT_WATCHLIST)
 def save_watchlist(d): save_json(WATCHLIST_FILE, d)
