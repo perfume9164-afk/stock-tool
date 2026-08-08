@@ -254,22 +254,21 @@ def compute_funda_score(info):
         scores["売上成長"] = 0
     dy = safe_float(info.get("dividendYield"))
     if dy:
-        # yfinanceは既に%で返す場合と小数で返す場合がある
-        d = dy if dy > 1 else dy * 100
-        scores["配当"] = 5 if d >= 3 else 4 if d >= 2 else 3 if d >= 1 else 2
+        # yfinanceは常に小数で返す（例：0.0215 = 2.15%）
+        # ただし稀に%値で返す場合があるので10以上は除外
+        dy_pct = dy * 100 if dy < 10 else dy
+        scores["配当"] = 5 if dy_pct >= 3 else 4 if dy_pct >= 2 else 3 if dy_pct >= 1 else 2
     else:
+        dy_pct = None
         scores["配当"] = 1
     de = safe_float(info.get("debtToEquity"))
     scores["財務"] = (5 if de < 30 else 4 if de < 60 else 3 if de < 100 else 1) if de is not None else 0
-    dy_display = None
-    if dy:
-        dy_display = dy if dy > 1 else round(dy * 100, 2)
     return {
         "total": sum(scores.values()), "details": scores,
         "per": per, "pbr": pbr,
         "roe": round(roe * 100, 1) if roe else None,
         "rev_growth": round(rg * 100, 1) if rg else None,
-        "div_yield": dy_display,
+        "div_yield": round(dy_pct, 2) if dy_pct else None,
     }
 
 def compute_market_chart_score(hist, ticker):
