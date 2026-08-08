@@ -560,21 +560,46 @@ def render_history_chart(ticker, history):
 def call_gemini(prompt: str) -> str:
     """Gemini APIを呼び出す"""
     try:
-        import urllib.request
+        import urllib.request, urllib.error
         api_key = st.secrets.get("GEMINI_API_KEY", "")
         if not api_key:
-            return "APIキーが設定されていません。StreamlitのSecretsにGEMINI_API_KEYを追加してください。"
-        url  = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
-        body = json.dumps({
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024}
-        }).encode()
-        req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=30) as res:
-            data = json.loads(res.read())
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            return "APIキーが設定されていません。"
+
+        # モデルを順番に試す
+        models = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-pro",
+        ]
+        last_error = ""
+        for model in models:
+            try:
+                url  = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                body = json.dumps({
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "temperature": 0.7,
+                        "maxOutputTokens": 1024,
+                    }
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    url, data=body,
+                    headers={"Content-Type": "application/json; charset=utf-8"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=30) as res:
+                    data = json.loads(res.read().decode("utf-8"))
+                    return data["candidates"][0]["content"]["parts"][0]["text"]
+            except urllib.error.HTTPError as e:
+                last_error = f"モデル{model}: HTTP {e.code} {e.reason} / {e.read().decode('utf-8', errors='ignore')}"
+                continue
+            except Exception as e:
+                last_error = str(e)
+                continue
+        return f"全モデルで失敗しました。最後のエラー：{last_error}"
     except Exception as e:
-        return f"エラーが発生しました：{e}"
+        return f"エラー：{e}"
 
 
 def build_analysis_prompt(ticker: str, name: str, score_data: dict, journal_entries: list, market_scores: dict) -> str:
