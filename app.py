@@ -564,7 +564,7 @@ def call_gemini(prompt: str) -> str:
         api_key = st.secrets.get("GEMINI_API_KEY", "")
         if not api_key:
             return "APIキーが設定されていません。StreamlitのSecretsにGEMINI_API_KEYを追加してください。"
-        url  = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url  = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
         body = json.dumps({
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024}
