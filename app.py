@@ -252,12 +252,11 @@ def compute_funda_score(info):
         scores["売上成長"] = 10 if g >= 15 else 8 if g >= 10 else 6 if g >= 5 else 4 if g >= 0 else 1
     else:
         scores["売上成長"] = 0
-    dy = safe_float(info.get("dividendYield"))
-    if dy:
-        # yfinanceは小数で返す（0.0215→2.15%）
-        # 1より大きい場合はすでに%なので100で割る
-        dy_pct = dy / 100 if dy > 1 else dy
-        dy_pct = round(dy_pct * 100, 2)
+    # trailingAnnualDividendYieldを優先（常に小数で安定している）
+    dy_raw = safe_float(info.get("trailingAnnualDividendYield")) or safe_float(info.get("dividendYield"))
+    if dy_raw:
+        # 0.1未満なら小数（0.0215→2.15%）、それ以上なら既に%表記
+        dy_pct = round(dy_raw * 100, 2) if dy_raw < 0.1 else round(dy_raw, 2)
         scores["配当"] = 5 if dy_pct >= 3 else 4 if dy_pct >= 2 else 3 if dy_pct >= 1 else 2
     else:
         dy_pct = None
@@ -269,7 +268,7 @@ def compute_funda_score(info):
         "per": per, "pbr": pbr,
         "roe": round(roe * 100, 1) if roe else None,
         "rev_growth": round(rg * 100, 1) if rg else None,
-        "div_yield": dy_pct,
+        "div_yield": dy_pct if dy_raw else None,
     }
 
 def compute_market_chart_score(hist, ticker):
