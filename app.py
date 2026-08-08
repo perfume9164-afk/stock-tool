@@ -254,9 +254,10 @@ def compute_funda_score(info):
         scores["売上成長"] = 0
     dy = safe_float(info.get("dividendYield"))
     if dy:
-        # yfinanceは常に小数で返す（例：0.0215 = 2.15%）
-        # ただし稀に%値で返す場合があるので10以上は除外
-        dy_pct = dy * 100 if dy < 10 else dy
+        # yfinanceは小数で返す（0.0215→2.15%）
+        # 1より大きい場合はすでに%なので100で割る
+        dy_pct = dy / 100 if dy > 1 else dy
+        dy_pct = round(dy_pct * 100, 2)
         scores["配当"] = 5 if dy_pct >= 3 else 4 if dy_pct >= 2 else 3 if dy_pct >= 1 else 2
     else:
         dy_pct = None
@@ -268,7 +269,7 @@ def compute_funda_score(info):
         "per": per, "pbr": pbr,
         "roe": round(roe * 100, 1) if roe else None,
         "rev_growth": round(rg * 100, 1) if rg else None,
-        "div_yield": round(dy_pct, 2) if dy_pct else None,
+        "div_yield": dy_pct,
     }
 
 def compute_market_chart_score(hist, ticker):
