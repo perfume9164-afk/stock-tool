@@ -705,6 +705,13 @@ def render_ai_tab(watchlist):
     with col2:
         analyze_btn = st.button("🤖 AI分析を実行", type="primary", use_container_width=True)
 
+    # デバッグ：ソニーの配当データ確認
+    if st.button("🔍 ソニー配当データ確認"):
+        hist, info, _ = fetch_stock_data("6758.T")
+        st.write("dividendYield:", info.get("dividendYield"))
+        st.write("dividendRate:", info.get("dividendRate"))
+        st.write("trailingAnnualDividendYield:", info.get("trailingAnnualDividendYield"))
+
     # デバッグ：利用可能モデル一覧を表示
     if st.button("🔍 利用可能モデルを確認", use_container_width=True):
         try:
