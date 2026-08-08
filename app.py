@@ -567,10 +567,10 @@ def call_gemini(prompt: str) -> str:
 
         # モデルを順番に試す
         models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-pro",
+            "gemini-2.0-flash-lite",
+            "gemini-2.0-flash-exp",
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-flash-8b-latest",
         ]
         last_error = ""
         for model in models:
