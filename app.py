@@ -579,7 +579,7 @@ def call_gemini(prompt: str) -> str:
                     "contents": [{"parts": [{"text": prompt}]}],
                     "generationConfig": {
                         "temperature": 0.7,
-                        "maxOutputTokens": 1024,
+                        "maxOutputTokens": 2048,
                     }
                 }).encode("utf-8")
                 req = urllib.request.Request(
