@@ -702,6 +702,22 @@ def render_ai_tab(watchlist):
     with col2:
         analyze_btn = st.button("🤖 AI分析を実行", type="primary", use_container_width=True)
 
+    # デバッグ：利用可能モデル一覧を表示
+    if st.button("🔍 利用可能モデルを確認", use_container_width=True):
+        try:
+            import urllib.request
+            api_key = st.secrets.get("GEMINI_API_KEY", "")
+            url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+            req = urllib.request.Request(url)
+            with urllib.request.urlopen(req, timeout=10) as res:
+                data = json.loads(res.read().decode())
+                models = [m["name"] for m in data.get("models", []) if "generateContent" in m.get("supportedGenerationMethods", [])]
+                st.write("利用可能なモデル：")
+                for m in models:
+                    st.code(m)
+        except Exception as e:
+            st.error(f"エラー：{e}")
+
     if analyze_btn:
         with st.spinner("データを収集してAIが分析中…（10〜20秒かかります）"):
             # スコアデータ取得
