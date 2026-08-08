@@ -286,22 +286,29 @@ def fetch_market_indices():
 
 @st.cache_data(ttl=86400)
 def get_company_name(ticker):
-    """会社名を取得（日本語優先）"""
-    # マスタにあればそれを使う
+    """Yahoo!ファイナンス日本版から日本語銘柄名を取得"""
     if ticker in JP_NAME_MASTER:
         return JP_NAME_MASTER[ticker]
     try:
+        import urllib.request
+        code = ticker.replace(".T", "")
+        url  = f"https://finance.yahoo.co.jp/quote/{code}.T"
+        req  = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=5) as res:
+            html = res.read().decode("utf-8")
+        # <title>銘柄名 【証券コード】...</title> から抽出
+        import re
+        m = re.search(r"<title>([^【\(（]+)", html)
+        if m:
+            name = m.group(1).strip()
+            if name and len(name) > 1:
+                return name
+    except:
+        pass
+    # フォールバック：yfinance
+    try:
         import yfinance as yf
         info = yf.Ticker(ticker).info
-        # 日本語名が含まれる可能性のあるフィールドを優先順位付きで確認
-        for field in ["longName", "shortName"]:
-            name = info.get(field, "")
-            if name:
-                # 英語っぽい名前（半角英字が7割超）なら日本語フォールバック
-                ascii_ratio = sum(1 for c in name if ord(c) < 128) / max(len(name), 1)
-                if ascii_ratio < 0.7:
-                    return name
-        # どうしても英語しかなければそのまま返す
         return info.get("shortName") or info.get("longName") or ticker
     except:
         return ticker
