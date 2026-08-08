@@ -574,6 +574,30 @@ def render_journal_tab(watchlist):
     with c3:
         position_type = st.selectbox("種別", ["現物買い", "信用買い", "仮想（検討中）", "売り"])
 
+    # 現在株価を取得して表示
+    hist, info, _ = fetch_stock_data(selected_ticker)
+    current_price = safe_float(info.get("currentPrice") or info.get("regularMarketPrice")) if info else None
+    prev_close    = safe_float(info.get("regularMarketPreviousClose")) if info else None
+    if current_price and prev_close:
+        chg     = current_price - prev_close
+        chg_pct = chg / prev_close * 100
+        chg_sign  = "+" if chg >= 0 else ""
+        chg_color = "#00e5a0" if chg >= 0 else "#ef5350"
+        st.markdown(f"""
+        <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.8rem;display:flex;align-items:center;gap:1.5rem;">
+          <span style="font-size:0.7rem;color:#4a7fa5;font-family:'IBM Plex Mono',monospace;">現在株価</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:1.3rem;color:#e8f4ff;font-weight:600;">¥{current_price:,.0f}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:{chg_color};">{chg_sign}{chg:,.0f}（{chg_sign}{chg_pct:.2f}%）</span>
+        </div>
+        """, unsafe_allow_html=True)
+    elif current_price:
+        st.markdown(f"""
+        <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.8rem;">
+          <span style="font-size:0.7rem;color:#4a7fa5;font-family:'IBM Plex Mono',monospace;">現在株価</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:1.3rem;color:#e8f4ff;font-weight:600;margin-left:1rem;">¥{current_price:,.0f}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
     # 行2：価格ライン
     st.markdown("**📌 価格ライン**")
     p1, p2, p3 = st.columns(3)
