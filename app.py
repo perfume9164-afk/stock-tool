@@ -717,6 +717,172 @@ def render_journal_tab(watchlist):
                     save_journal(journal)
                     st.rerun()
 
+def call_gemini(prompt: str) -> str:
+    """Gemini APIを呼び出す"""
+    try:
+        import urllib.request, urllib.error
+        api_key = st.secrets.get("GEMINI_API_KEY", "")
+        if not api_key:
+            return "APIキーが設定されていません。StreamlitのSecretsにGEMINI_API_KEYを追加してください。"
+        models = [
+            "gemini-3-flash-preview",
+            "gemini-3.1-flash-lite",
+            "gemini-flash-latest",
+        ]
+        last_error = ""
+        for model in models:
+            try:
+                url  = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                body = json.dumps({
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2048}
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    url, data=body,
+                    headers={"Content-Type": "application/json; charset=utf-8"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=30) as res:
+                    data = json.loads(res.read().decode("utf-8"))
+                    return data["candidates"][0]["content"]["parts"][0]["text"]
+            except urllib.error.HTTPError as e:
+                last_error = f"モデル{model}: HTTP {e.code} / {e.read().decode('utf-8', errors='ignore')}"
+                continue
+            except Exception as e:
+                last_error = str(e)
+                continue
+        return f"全モデルで失敗しました。最後のエラー：{last_error}"
+    except Exception as e:
+        return f"エラー：{e}"
+
+
+def build_analysis_prompt(ticker, name, score_data, journal_entries, market_scores):
+    fa = score_data.get("funda", {})
+    ch = score_data.get("chart", {})
+    n225  = market_scores.get("^N225",  {}).get("trend", "—")
+    topix = market_scores.get("1306.T", {}).get("trend", "—")
+    fx    = market_scores.get("JPY=X",  {}).get("trend", "—")
+
+    journal_text = ""
+    if journal_entries:
+        for e in journal_entries[:20]:
+            journal_text += f"""
+  【{e['date']} / {e.get('position_type','')} / {e.get('result','保有中')}】
+  トレンド: {e.get('trend_dir','')} / 出来高: {e.get('volume_judge','')}
+  MA状況: {e.get('ma_status','')} / パターン: {e.get('pattern','')}
+  IN: {e.get('in_point','—')}円 / 損切: {e.get('stop_point','—')}円 / 目標: {e.get('target_point','—')}円
+  損益率: {e.get('pnl_pct','—')}%
+  テクニカル根拠: {e.get('tech_comment','')}
+  総合所見: {e.get('general_comment','')}
+  確信度: {'★' * e.get('confidence', 1)}
+"""
+    else:
+        journal_text = "  （メモなし）"
+
+    return f"""
+あなたは経験豊富な日本株アナリストです。以下のデータをもとに投資家への分析コメントを日本語で提供してください。
+
+## 対象銘柄
+{name}（{ticker}）
+
+## スコアサマリー
+- 総合スコア: {score_data.get('total', 0)}/100点
+- ファンダスコア: {fa.get('total', 0)}/50点
+- チャートスコア: {ch.get('total', 0)}/50点
+
+## ファンダメンタルズ
+- PER: {fa.get('per', '—')}倍 / PBR: {fa.get('pbr', '—')}倍
+- ROE: {fa.get('roe', '—')}% / 売上成長率: {fa.get('rev_growth', '—')}%
+- 配当利回り: {fa.get('div_yield', '—')}%
+
+## テクニカル指標
+- RSI(14): {ch.get('rsi', '—')}
+- MA25: {ch.get('ma25', '—')}円 / MA75: {ch.get('ma75', '—')}円 / MA200: {ch.get('ma200', '—')}円
+- BB位置: {ch.get('bb_pos', '—')}% / 52週レンジ位置: {ch.get('range_pos', '—')}%
+
+## 市場環境
+- 日経平均: {n225} / TOPIX ETF: {topix} / ドル円: {fx}
+
+## 投資家のトレード日誌（直近20件）
+{journal_text}
+
+## 回答形式（400〜600文字）
+
+【総合判断】買い / 様子見 / 見送り のいずれかと理由
+
+【ポジティブ要因】箇条書き2〜3点
+
+【リスク・懸念点】箇条書き2〜3点
+
+【具体的なアクション提案】
+INタイミング、損切水準、目標株価を数字で示してください。
+
+【一言コメント】投資家へのメッセージ
+"""
+
+
+def render_ai_tab(watchlist):
+    """AI分析タブ"""
+    st.markdown('<div class="section-head">🤖 AI投資分析（Gemini）</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:8px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.8rem;color:#7fb3d3;">
+    ⚠️ 本機能はAIによる参考情報です。投資判断はご自身の責任で行ってください。
+    </div>
+    """, unsafe_allow_html=True)
+
+    if not watchlist:
+        st.info("サイドバーから銘柄を追加してください。")
+        return
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        selected = st.selectbox(
+            "分析する銘柄を選択",
+            list(watchlist.keys()),
+            format_func=lambda t: f"{t}　{watchlist[t]}"
+        )
+    with col2:
+        analyze_btn = st.button("🤖 AI分析を実行", type="primary", use_container_width=True)
+
+    if analyze_btn:
+        with st.spinner("データを収集してAIが分析中…（10〜20秒かかります）"):
+            score_data    = score_stock(selected, watchlist[selected])
+            market_scores = fetch_market_indices()
+            journal       = load_journal()
+            journal_entries = [j for j in journal if j["ticker"] == selected][:20]
+            prompt = build_analysis_prompt(selected, watchlist[selected], score_data, journal_entries, market_scores)
+            result = call_gemini(prompt)
+
+        st.markdown(f"""
+        <div style="background:#060d1a;border:1px solid #2d6a9f;border-radius:12px;padding:1.5rem;margin-top:1rem;line-height:1.8;color:#e8f4ff;font-size:0.9rem;white-space:pre-wrap;">{result}</div>
+        """, unsafe_allow_html=True)
+
+        st.divider()
+        if st.button("📝 この分析をトレード日誌に保存"):
+            journal = load_journal()
+            entry = {
+                "id":              datetime.now().strftime("%Y%m%d%H%M%S"),
+                "date":            datetime.now().strftime("%Y-%m-%d"),
+                "ticker":          selected,
+                "name":            watchlist.get(selected, selected),
+                "position_type":   "AI分析",
+                "current_price":   score_data.get("price"),
+                "in_point":        None, "stop_point": None, "target_point": None,
+                "rr_ratio":        None,
+                "trend_dir":       "—", "volume_judge": "—", "ma_status": "—",
+                "pattern":         "AI自動分析",
+                "tech_comment":    "",
+                "general_comment": result,
+                "confidence":      3,
+                "exit_date":       None, "exit_price": None,
+                "pnl":             None, "pnl_pct": None,
+                "result":          "保有中", "score_at_entry": None,
+            }
+            journal.insert(0, entry)
+            save_journal(journal)
+            st.success("トレード日誌に保存しました ✅")
+
+
 def render_correlation_tab(watchlist):
     """損益×スコア相関分析タブ"""
     st.markdown('<div class="section-head">📊 スコア × 損益 相関分析</div>', unsafe_allow_html=True)
@@ -901,7 +1067,7 @@ def main():
             save_history(history)
             st.success("保存しました ✅")
 
-    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析", "🤖 AI分析"])
+    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析"])
 
     with tabs[0]:
         with st.spinner("市場指標を取得中…"):
@@ -959,9 +1125,6 @@ def main():
 
     with tabs[4]:
         render_correlation_tab(watchlist)
-
-    with tabs[5]:
-        render_ai_tab(watchlist)
 
 if __name__ == "__main__":
     main()
