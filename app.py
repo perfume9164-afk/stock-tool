@@ -1123,8 +1123,10 @@ def main():
     with tabs[3]:
         render_journal_tab(watchlist)
 
-    with tabs[4]:
+with tabs[4]:
         render_correlation_tab(watchlist)
 
+    with tabs[5]:
+        render_ai_tab(watchlist)
+
 if __name__ == "__main__":
-    main()
