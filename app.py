@@ -98,6 +98,9 @@ JP_NAME_MASTER = {
     "6367.T": "ダイキン工業",
     "7741.T": "HOYA",
     "2914.T": "日本たばこ産業",
+    "6315.T": "TOWA",
+    "6526.T": "ソシオネクスト",
+    "5803.T": "フジクラ",
 }
 
 def load_json(path, default):
@@ -200,11 +203,15 @@ def compute_funda_score(info):
         scores["売上成長"] = 10 if g >= 15 else 8 if g >= 10 else 6 if g >= 5 else 4 if g >= 0 else 1
     else:
         scores["売上成長"] = 0
-    dy = safe_float(info.get("dividendYield"))
-    if dy:
-        d = dy * 100
+    dy_raw = safe_float(info.get("dividendYield"))
+    # yfinanceのバージョンや取得元によって、配当利回りが
+    # 「0.95（=0.95%）」または「0.0095（=0.95%）」で返る場合があるため正規化。
+    if dy_raw is not None:
+        d = dy_raw if dy_raw > 1 else dy_raw * 100
+        dy = d
         scores["配当"] = 5 if d >= 3 else 4 if d >= 2 else 3 if d >= 1 else 2
     else:
+        dy = None
         scores["配当"] = 1
     de = safe_float(info.get("debtToEquity"))
     scores["財務"] = (5 if de < 30 else 4 if de < 60 else 3 if de < 100 else 1) if de is not None else 0
@@ -213,7 +220,7 @@ def compute_funda_score(info):
         "per": per, "pbr": pbr,
         "roe": round(roe * 100, 1) if roe else None,
         "rev_growth": round(rg * 100, 1) if rg else None,
-        "div_yield": round(dy * 100, 2) if dy else None,
+        "div_yield": round(dy, 2) if dy is not None else None,
     }
 
 def compute_market_chart_score(hist, ticker):
@@ -286,24 +293,47 @@ def fetch_market_indices():
 
 @st.cache_data(ttl=86400)
 def get_company_name(ticker):
-    """会社名を取得（日本語優先）"""
-    # マスタにあればそれを使う
+    """会社名を取得（日本語優先。マスタ→Yahoo!ファイナンス日本版→yfinanceの順）"""
+    # 1. 日本語名マスタに登録済みなら最優先
     if ticker in JP_NAME_MASTER:
         return JP_NAME_MASTER[ticker]
+
+    code = ticker.replace(".T", "")
+
+    # 2. Yahoo!ファイナンス日本版から日本語社名を取得
+    #    マスタ未登録の日本株でも日本語表示できるようにする
+    try:
+        import requests, re, html as html_lib
+        url = f"https://finance.yahoo.co.jp/quote/{code}"
+        resp = requests.get(
+            url,
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=5
+        )
+        if resp.ok:
+            m = re.search(r"<title[^>]*>(.*?)</title>", resp.text, re.I | re.S)
+            if m:
+                title = html_lib.unescape(re.sub(r"<[^>]+>", "", m.group(1))).strip()
+                # 例:「トヨタ自動車(7203) 株価｜...」から会社名だけ抽出
+                title = re.split(r"[（(]" + re.escape(code) + r"[）)]", title)[0].strip()
+                title = re.sub(r"\s*[-|｜].*$", "", title).strip()
+                if title and code not in title and len(title) <= 80:
+                    return title
+    except Exception:
+        pass
+
+    # 3. yfinanceから取得（日本語が返る場合はそのまま利用）
     try:
         import yfinance as yf
         info = yf.Ticker(ticker).info
-        # 日本語名が含まれる可能性のあるフィールドを優先順位付きで確認
         for field in ["longName", "shortName"]:
             name = info.get(field, "")
             if name:
-                # 英語っぽい名前（半角英字が7割超）なら日本語フォールバック
                 ascii_ratio = sum(1 for c in name if ord(c) < 128) / max(len(name), 1)
                 if ascii_ratio < 0.7:
                     return name
-        # どうしても英語しかなければそのまま返す
         return info.get("shortName") or info.get("longName") or ticker
-    except:
+    except Exception:
         return ticker
 
 def score_stock(ticker, name):
@@ -390,12 +420,12 @@ def render_card_with_delete(r, watchlist):
     v_label, _, v_cls = verdict(r["total"])
     fa = r["funda"]
     ch = r["chart"]
-    per_str = f"PER {fa['per']:.1f}x"       if fa.get("per")       else "PER —"
-    pbr_str = f"PBR {fa['pbr']:.2f}x"       if fa.get("pbr")       else "PBR —"
+    per_str = f"PER {fa['per']:.1f}倍"       if fa.get("per")       else "PER —"
+    pbr_str = f"PBR {fa['pbr']:.2f}倍"       if fa.get("pbr")       else "PBR —"
     roe_str = f"ROE {fa['roe']:.1f}%"        if fa.get("roe")       else "ROE —"
     rsi_str = f"RSI {ch.get('rsi','—')}"
-    rng_str = f"52W {ch.get('range_pos','—')}%"
-    div_str = f"配当 {fa['div_yield']:.2f}%" if fa.get("div_yield") else "配当 —"
+    rng_str = f"52週位置 {ch.get('range_pos','—')}%"
+    div_str = f"配当利回り {fa['div_yield']:.2f}%" if fa.get("div_yield") is not None else "配当利回り —"
 
     card_col, del_col = st.columns([12, 1])
     with card_col:
@@ -415,11 +445,11 @@ def render_card_with_delete(r, watchlist):
           </div>
           <div style="display:flex;gap:0.8rem;margin-top:0.8rem;">
             <div style="flex:1;background:#0a0f1e;border-radius:6px;padding:0.5rem 0.8rem;">
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">FUNDA {fa['total']}/50</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">ファンダ {fa['total']}/50</div>
               <div style="background:#1e3a5f;border-radius:3px;height:6px;"><div style="background:#4fc3f7;width:{fa['total']*2}%;height:6px;border-radius:3px;"></div></div>
             </div>
             <div style="flex:1;background:#0a0f1e;border-radius:6px;padding:0.5rem 0.8rem;">
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">CHART {ch['total']}/50</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#4a7fa5;margin-bottom:0.3rem;">チャート {ch['total']}/50</div>
               <div style="background:#1e3a5f;border-radius:3px;height:6px;"><div style="background:#00e5a0;width:{ch['total']*2}%;height:6px;border-radius:3px;"></div></div>
             </div>
           </div>
@@ -1027,7 +1057,7 @@ def main():
     st.markdown(f"""
     <div class="main-header">
       <h1>📈 日本株 AI スコアボード</h1>
-      <div class="subtitle">FUNDA + CHART SCORING ENGINE &nbsp;|&nbsp; {datetime.now().strftime('%Y-%m-%d %H:%M')} 更新</div>
+      <div class="subtitle">ファンダメンタルズ＋チャート スコアリングエンジン &nbsp;|&nbsp; {datetime.now().strftime('%Y-%m-%d %H:%M')} 更新</div>
     </div>
     """, unsafe_allow_html=True)
 
