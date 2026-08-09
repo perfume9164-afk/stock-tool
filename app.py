@@ -901,7 +901,7 @@ def main():
             save_history(history)
             st.success("保存しました ✅")
 
-    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析"])
+    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析", "🤖 AI分析"])
 
     with tabs[0]:
         with st.spinner("市場指標を取得中…"):
@@ -959,6 +959,9 @@ def main():
 
     with tabs[4]:
         render_correlation_tab(watchlist)
+
+    with tabs[5]:
+        render_ai_tab(watchlist)
 
 if __name__ == "__main__":
     main()
