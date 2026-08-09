@@ -76,6 +76,80 @@ section[data-testid="stSidebar"] { background:#0a0f1e; border-right:1px solid #1
 div[data-testid="stHorizontalBlock"] { gap:0.5rem; }
 .stButton > button { min-height:2rem; padding:0.2rem 0.65rem; }
 
+
+/* ── v5 readable dashboard overrides ───────────────────────── */
+:root { color-scheme: dark; }
+html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] { background:#07111f !important; color:#e8f4ff !important; }
+[data-testid="stHeader"] { background:rgba(7,17,31,.92) !important; }
+.block-container { padding:1rem 1.15rem 1.5rem !important; max-width:1600px !important; }
+.main-header { padding:.95rem 1.2rem !important; margin:-1rem -1.15rem 1rem !important; border-radius:0 0 12px 12px !important; }
+.main-header h1 { font-size:1.35rem !important; }
+.main-header .subtitle { font-size:.72rem !important; }
+[data-testid="stVerticalBlock"] { gap:.65rem !important; }
+div[data-testid="stHorizontalBlock"] { gap:.8rem !important; }
+.stTabs [data-baseweb="tab-list"] { gap:.35rem !important; background:#091426 !important; border:1px solid #1c3554 !important; padding:.35rem !important; border-radius:10px !important; }
+.stTabs [data-baseweb="tab"] { color:#9db7cf !important; font-weight:600 !important; padding:.55rem .9rem !important; }
+.stTabs [aria-selected="true"] { color:#ffffff !important; background:#0d2b4c !important; border-radius:7px !important; }
+.stSelectbox label, .stTextInput label, .stNumberInput label, .stDateInput label, .stTextArea label, .stSlider label, .stSelectSlider label { color:#cfe1f2 !important; font-size:.82rem !important; font-weight:600 !important; }
+.stSelectbox [data-baseweb="select"] > div, .stTextInput input, .stNumberInput input, .stDateInput input, .stTextArea textarea { background:#0d1b2d !important; color:#f3f8fc !important; border-color:#294665 !important; }
+.stButton > button { background:#10243b !important; color:#f3f8fc !important; border:1px solid #2b4b6b !important; border-radius:7px !important; min-height:2.35rem !important; font-weight:600 !important; }
+.stButton > button:hover { border-color:#4fc3f7 !important; color:#ffffff !important; }
+.detail-hero { display:grid; grid-template-columns:1.6fr 1fr .55fr .55fr; align-items:center; gap:1.1rem; background:linear-gradient(135deg,#0b1b31,#0d2541); border:1px solid #244461; border-radius:12px; padding:1.15rem 1.35rem; margin:.2rem 0 .75rem; min-height:125px; box-shadow:0 8px 28px rgba(0,0,0,.16); }
+.hero-name { font-size:1.65rem; font-weight:800; color:#f5f9fd; line-height:1.15; margin-top:.15rem; }
+.hero-sub { color:#6f91ad; font-size:.72rem; margin-top:.25rem; }
+.hero-price { text-align:right; border-left:1px solid #244461; padding-left:1.2rem; }
+.hero-price-value { font-family:'IBM Plex Mono',monospace; font-size:2rem; font-weight:600; color:#ffffff; }
+.hero-change { font-family:'IBM Plex Mono',monospace; font-size:.85rem; margin-top:.2rem; }
+.hero-score { text-align:center; border-left:1px solid #244461; padding-left:1rem; }
+.hero-score .score-badge { font-size:2.35rem !important; }
+.score-unit { color:#7c9ab2; font-size:.72rem; margin-top:.05rem; }
+.hero-verdict { text-align:right; }
+.detail-metrics { display:grid; grid-template-columns:repeat(7,1fr); background:#0a1728; border:1px solid #203d5a; border-radius:9px; margin-bottom:.85rem; overflow:hidden; }
+.detail-metric { padding:.65rem .75rem; border-right:1px solid #203d5a; min-width:0; }
+.detail-metric:last-child { border-right:none; }
+.detail-metric-label { color:#7393ad; font-size:.67rem; margin-bottom:.18rem; }
+.detail-metric-value { color:#f0f6fb; font-family:'IBM Plex Mono',monospace; font-size:.95rem; font-weight:600; white-space:nowrap; }
+.panel-title, .trade-section-title { color:#f1f6fb; font-weight:800; font-size:1rem; padding:.1rem 0 .55rem; border-bottom:1px solid #244461; margin-bottom:.6rem; }
+.score-panel { background:#0d1b2d; border:1px solid #244461; border-radius:10px; padding:1rem; min-height:150px; }
+.score-row { display:flex; justify-content:space-between; color:#dceaf5; font-size:.82rem; margin-bottom:.4rem; }
+.score-row b { color:#ffffff; font-family:'IBM Plex Mono',monospace; }
+.score-row-tech { margin-top:1rem; }
+.score-track { height:7px; background:#1c3554; border-radius:8px; overflow:hidden; }
+.score-fill { height:100%; border-radius:8px; }
+.score-fill.funda { background:#4fc3f7; }
+.score-fill.tech { background:#00e5a0; }
+div[data-testid="stExpander"] { background:#0b182a !important; border:1px solid #244461 !important; border-radius:9px !important; }
+div[data-testid="stExpander"] summary { color:#e9f3fb !important; font-weight:600 !important; padding:.75rem .85rem !important; }
+.trade-section-title { margin-top:.35rem; font-size:1.05rem; padding-top:.35rem; }
+.trade-panel, .journal-panel { background:#0b192b; border:1px solid #244461; border-radius:10px; padding:1rem; min-height:250px; }
+.trade-panel-title, .journal-panel-head { color:#f1f6fb; font-size:1rem; font-weight:800; margin-bottom:.75rem; }
+.trade-grid { display:grid; grid-template-columns:1fr auto; gap:.7rem .8rem; padding:.8rem; background:#0d2035; border:1px solid #203d5a; border-radius:8px; }
+.trade-grid span { color:#a8bfd2; font-size:.8rem; }
+.trade-grid b { color:#f4f8fb; font-family:'IBM Plex Mono',monospace; font-size:.84rem; text-align:right; }
+.trade-grid small { font-family:'Noto Sans JP',sans-serif; color:#00e5a0; font-size:.65rem; }
+.in-value { color:#00e5a0 !important; } .target-value { color:#4fc3f7 !important; } .stop-value { color:#ef5350 !important; }
+.journal-panel-head { display:flex; justify-content:space-between; align-items:center; }
+.journal-count { color:#8aa5ba; font-size:.75rem; font-weight:500; }
+.empty-journal { background:#10243a; border:1px solid #2a4b6b; border-radius:9px; padding:1.2rem 1.1rem; margin-top:.4rem; }
+.empty-title { color:#dceaf5; font-size:.9rem; font-weight:700; }
+.empty-text { color:#8fa9be; font-size:.76rem; margin-top:.35rem; line-height:1.6; }
+.journal-entry { background:#0d2035; border:1px solid #203d5a; border-radius:8px; padding:.75rem .85rem; margin-bottom:.55rem; }
+.journal-entry-top { display:grid; grid-template-columns:95px 1fr auto; gap:.7rem; align-items:center; color:#e8f4ff; font-size:.76rem; }
+.journal-date { color:#86a7c0; font-family:'IBM Plex Mono',monospace; font-size:.68rem; }
+.journal-note { line-height:1.45; }
+.journal-entry-meta { display:flex; gap:1rem; flex-wrap:wrap; margin-top:.45rem; color:#87a6bc; font-size:.67rem; }
+.price-line-in { font-size:.8rem !important; }
+section[data-testid="stSidebar"] { background:#081525 !important; border-right:1px solid #203d5a !important; }
+section[data-testid="stSidebar"] .block-container { padding:.8rem !important; }
+.market-panel, .score-card { box-shadow:0 4px 18px rgba(0,0,0,.12); }
+@media (max-width: 900px) {
+  .detail-hero { grid-template-columns:1fr 1fr; }
+  .hero-price, .hero-score { border-left:none; padding-left:0; text-align:left; }
+  .hero-verdict { text-align:left; }
+  .detail-metrics { grid-template-columns:repeat(4,1fr); }
+  .detail-metric:nth-child(4) { border-right:none; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -522,141 +596,237 @@ def _fmt_yen(v):
 
 
 def render_detail(r):
-    """銘柄詳細＋トレード日誌を一体化したコンパクト画面"""
+    """画像デザイン準拠：銘柄詳細＋トレード日誌を一画面に統合"""
     if "error" in r:
         st.error(r.get("error", "データ取得エラー"))
         return
+
     fa, ch = r["funda"], r["chart"]
     latest = _latest_journal_for_ticker(r["ticker"])
     current_price = safe_float(r.get("price")) or 0
-    chg_cls = "price-change-pos" if r.get("chg", 0) >= 0 else "price-change-neg"
-    chg_sign = "+" if r.get("chg", 0) >= 0 else ""
+    chg = r.get("chg", 0) or 0
+    chg_pct = r.get("chg_pct", 0) or 0
+    chg_cls = "price-change-pos" if chg >= 0 else "price-change-neg"
+    chg_sign = "+" if chg >= 0 else ""
     v_label, _, v_cls = verdict(r["total"])
 
+    # ── ヘッダー ─────────────────────────────────────────────
     st.markdown(f"""
-    <div style="background:linear-gradient(135deg,#0b1830,#0d223f);border:1px solid #1e3a5f;border-radius:8px;padding:.72rem .9rem;margin-bottom:.4rem">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
-        <div><div class="ticker-label">{r['ticker']}</div><div style="font-size:1.35rem;font-weight:700;color:#e8f4ff;line-height:1.1">{r['name']}</div></div>
-        <div style="display:flex;align-items:center;gap:1.25rem;text-align:right">
-          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:1.5rem;color:#e8f4ff">¥{current_price:,.0f}</div><div class="{chg_cls}" style="font-family:'IBM Plex Mono',monospace;font-size:.72rem">{chg_sign}{r.get('chg',0):,.0f} ({chg_sign}{r.get('chg_pct',0):.2f}%)</div></div>
-          <div><div class="score-badge {r['score_cls']}" style="font-size:2rem">{r['total']}</div><div style="font-size:.58rem;color:#4a7fa5">/ 100点</div></div>
-          <span class="verdict {v_cls}">{v_label}</span>
-        </div>
+    <div class="detail-hero">
+      <div class="hero-main">
+        <div class="ticker-label">{r['ticker']}</div>
+        <div class="hero-name">{r['name']}</div>
+        <div class="hero-sub">日本株 AI スコア分析</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);margin-top:.55rem;border-top:1px solid #1e3a5f;padding-top:.45rem;font-size:.72rem">
-        <div><span style="color:#4a7fa5;font-size:.58rem">PER</span><br><b>{fa.get('per'):.1f}倍</b></div>
-        <div><span style="color:#4a7fa5;font-size:.58rem">PBR</span><br><b>{fa.get('pbr'):.2f}倍</b></div>
-        <div><span style="color:#4a7fa5;font-size:.58rem">ROE</span><br><b>{fa.get('roe')}%</b></div>
-        <div><span style="color:#4a7fa5;font-size:.58rem">RSI</span><br><b>{ch.get('rsi','—')}</b></div>
-        <div><span style="color:#4a7fa5;font-size:.58rem">52週位置</span><br><b>{ch.get('range_pos','—')}%</b></div>
-        <div><span style="color:#4a7fa5;font-size:.58rem">配当利回り</span><br><b>{fa.get('div_yield','—')}%</b></div>
-        <div><span style="color:#4a7fa5;font-size:.58rem">ファンダ</span><br><b>{fa['total']}/50</b></div>
+      <div class="hero-price">
+        <div class="hero-price-value">¥{current_price:,.0f}</div>
+        <div class="{chg_cls} hero-change">{chg_sign}{chg:,.0f} ({chg_sign}{chg_pct:.2f}%)</div>
       </div>
-    </div>""", unsafe_allow_html=True)
+      <div class="hero-score">
+        <div class="score-badge {r['score_cls']}">{r['total']}</div>
+        <div class="score-unit">/100点</div>
+      </div>
+      <div class="hero-verdict"><span class="verdict {v_cls}">{v_label}</span></div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    left, right = st.columns([0.72, 1.9], gap="small")
+    # ── 指標 ─────────────────────────────────────────────────
+    metrics = [
+        ("PER", f"{fa.get('per'):.1f}倍" if fa.get('per') is not None else "—"),
+        ("PBR", f"{fa.get('pbr'):.2f}倍" if fa.get('pbr') is not None else "—"),
+        ("ROE", f"{fa.get('roe')}%" if fa.get('roe') is not None else "—"),
+        ("RSI", f"{ch.get('rsi','—')}"),
+        ("52週位置", f"{ch.get('range_pos','—')}%"),
+        ("配当利回り", f"{fa.get('div_yield','—')}%"),
+        ("ファンダ", f"{fa['total']}/50"),
+    ]
+    metric_html = ''.join(f'<div class="detail-metric"><div class="detail-metric-label">{k}</div><div class="detail-metric-value">{v}</div></div>' for k,v in metrics)
+    st.markdown(f'<div class="detail-metrics">{metric_html}</div>', unsafe_allow_html=True)
+
+    # ── スコア＋チャート ────────────────────────────────────
+    left, right = st.columns([0.82, 2.15], gap="medium")
     with left:
-        st.markdown('<div class="section-head">スコア内訳</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-title">スコア内訳</div>', unsafe_allow_html=True)
         st.markdown(f"""
-        <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:7px;padding:.65rem .75rem">
-          <div style="display:flex;justify-content:space-between;font-size:.72rem"><span>ファンダメンタルズ</span><b>{fa['total']}/50</b></div>
-          <div style="height:5px;background:#1e3a5f;border-radius:4px;margin:.2rem 0 .6rem"><div style="width:{fa['total']*2}%;height:5px;background:#4fc3f7;border-radius:4px"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:.72rem"><span>テクニカル</span><b>{ch['total']}/50</b></div>
-          <div style="height:5px;background:#1e3a5f;border-radius:4px;margin-top:.2rem"><div style="width:{ch['total']*2}%;height:5px;background:#00e5a0;border-radius:4px"></div></div>
-        </div>""", unsafe_allow_html=True)
+        <div class="score-panel">
+          <div class="score-row"><span>ファンダメンタルズ</span><b>{fa['total']}/50</b></div>
+          <div class="score-track"><div class="score-fill funda" style="width:{fa['total']*2}%"></div></div>
+          <div class="score-row score-row-tech"><span>テクニカル（チャート）</span><b>{ch['total']}/50</b></div>
+          <div class="score-track"><div class="score-fill tech" style="width:{ch['total']*2}%"></div></div>
+        </div>
+        """, unsafe_allow_html=True)
+
         with st.expander("🤖 AIコメント", expanded=False):
-            if st.button("AI分析を生成", key=f"detail_ai_{r['ticker']}"):
+            if st.button("AI分析を生成", key=f"detail_ai_{r['ticker']}", use_container_width=True):
                 with st.spinner("AI分析中…"):
                     ms = fetch_market_indices()
                     entries = [j for j in load_journal() if j.get("ticker") == r["ticker"]]
-                    st.session_state[f"detail_ai_result_{r['ticker']}"] = call_gemini(build_analysis_prompt(r["ticker"], r["name"], r, entries, ms))
-            if st.session_state.get(f"detail_ai_result_{r['ticker']}"):
-                st.markdown(st.session_state[f"detail_ai_result_{r['ticker']}"])
+                    st.session_state[f"detail_ai_result_{r['ticker']}"] = call_gemini(
+                        build_analysis_prompt(r["ticker"], r["name"], r, entries, ms)
+                    )
+            ai_text = st.session_state.get(f"detail_ai_result_{r['ticker']}")
+            if ai_text:
+                st.markdown(ai_text)
             else:
                 st.caption("必要なときだけAI分析を生成できます。")
 
     with right:
-        st.markdown('<div class="section-head">株価チャート（2年）</div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel-title">株価チャート（2年）</div>', unsafe_allow_html=True)
         hist, _, _ = fetch_stock_data(r["ticker"])
         if hist is not None and len(hist) > 0:
             hist = hist.reset_index()
-            for ma in (25,75,200): hist[f"MA{ma}"] = hist["Close"].rolling(ma).mean()
+            for ma in (25, 75, 200):
+                hist[f"MA{ma}"] = hist["Close"].rolling(ma).mean()
             fig = go.Figure()
-            fig.add_trace(go.Candlestick(x=hist["Date"],open=hist["Open"],high=hist["High"],low=hist["Low"],close=hist["Close"],name="株価",increasing_line_color="#00e5a0",decreasing_line_color="#ef5350"))
-            for col,color,lbl in [("MA25","#ffd54f","25MA"),("MA75","#4fc3f7","75MA"),("MA200","#ff7043","200MA")]:
-                fig.add_trace(go.Scatter(x=hist["Date"],y=hist[col],line=dict(color=color,width=1),name=lbl,opacity=.75))
+            fig.add_trace(go.Candlestick(
+                x=hist["Date"], open=hist["Open"], high=hist["High"],
+                low=hist["Low"], close=hist["Close"], name="株価",
+                increasing_line_color="#00e5a0", decreasing_line_color="#ef5350",
+                increasing_fillcolor="#00e5a0", decreasing_fillcolor="#ef5350",
+            ))
+            for col, color, lbl in [
+                ("MA25", "#ffd54f", "25MA"),
+                ("MA75", "#4fc3f7", "75MA"),
+                ("MA200", "#ff7043", "200MA"),
+            ]:
+                fig.add_trace(go.Scatter(
+                    x=hist["Date"], y=hist[col], line=dict(color=color, width=1.2),
+                    name=lbl, opacity=.8
+                ))
             if current_price:
-                fig.add_hline(y=current_price,line_dash="dot",line_color="#00e5a0",opacity=.75,annotation_text=f"IN / 現在値 ¥{current_price:,.0f}",annotation_position="top left")
-            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#0a0f1e",font_color="#e8f4ff",xaxis=dict(gridcolor="#1e3a5f",rangeslider_visible=False),yaxis=dict(gridcolor="#1e3a5f"),legend=dict(bgcolor="rgba(0,0,0,0)",orientation="h",y=1.02),height=300,margin=dict(l=0,r=0,t=16,b=0))
-            st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+                fig.add_hline(
+                    y=current_price, line_dash="dot", line_color="#00e5a0",
+                    opacity=.9, annotation_text=f"IN / 現在値 ¥{current_price:,.0f}",
+                    annotation_position="top left",
+                    annotation_font=dict(color="#e8f4ff", size=12)
+                )
+            fig.update_layout(
+                paper_bgcolor="#091426", plot_bgcolor="#091426",
+                font=dict(color="#dbeafe", family="Noto Sans JP, sans-serif", size=12),
+                xaxis=dict(gridcolor="#1c3554", rangeslider_visible=False, zeroline=False),
+                yaxis=dict(gridcolor="#1c3554", zeroline=False, tickfont=dict(size=11)),
+                legend=dict(bgcolor="rgba(0,0,0,0)", orientation="h", y=1.03, x=0, font=dict(size=11)),
+                height=340, margin=dict(l=8, r=8, t=24, b=8),
+                hoverlabel=dict(bgcolor="#0d1f3c", font_color="#ffffff"),
+            )
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
         else:
             st.info("チャートデータを取得できませんでした。")
 
-    st.markdown('<div class="section-head" style="margin-top:.05rem">トレード計画 ＆ トレード日誌</div>', unsafe_allow_html=True)
-    plan_col, journal_col = st.columns([0.72,1.45], gap="small")
+    # ── トレード計画＋日誌 ──────────────────────────────────
+    st.markdown('<div class="trade-section-title">トレードプラン ＆ トレード日誌</div>', unsafe_allow_html=True)
+    plan_col, journal_col = st.columns([0.9, 1.7], gap="medium")
+
     with plan_col:
         stop_default = safe_float(latest.get("stop_point")) if latest else None
         target_default = safe_float(latest.get("target_point")) if latest else None
         rr = None
-        if current_price and stop_default and target_default and abs(current_price-stop_default)>0: rr=abs(target_default-current_price)/abs(current_price-stop_default)
+        if current_price and stop_default and target_default and abs(current_price-stop_default) > 0:
+            rr = abs(target_default-current_price) / abs(current_price-stop_default)
+
         st.markdown(f"""
-        <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:7px;padding:.6rem .7rem">
-          <div style="font-size:.88rem;font-weight:700;margin-bottom:.4rem">トレードプラン</div>
-          <div style="display:grid;grid-template-columns:1fr auto;gap:.3rem .6rem;font-size:.75rem">
-            <span style="color:#7fb3d3">IN（エントリー）</span><b style="color:#00e5a0">{_fmt_yen(current_price)}（現在価格）</b>
-            <span style="color:#7fb3d3">利益目標（TGT）</span><b style="color:#4fc3f7">{_fmt_yen(target_default)}</b>
-            <span style="color:#7fb3d3">損切り（STOP）</span><b style="color:#ef5350">{_fmt_yen(stop_default)}</b>
-            <span style="color:#7fb3d3">リスク/リワード</span><b>{f'1 : {rr:.2f}' if rr else '—'}</b>
+        <div class="trade-panel">
+          <div class="trade-panel-title">トレードプラン</div>
+          <div class="trade-grid">
+            <span>IN（エントリー）</span><b class="in-value">{_fmt_yen(current_price)} <small>（現在価格）</small></b>
+            <span>利益目標（TGT）</span><b class="target-value">{_fmt_yen(target_default)}</b>
+            <span>損切り（STOP）</span><b class="stop-value">{_fmt_yen(stop_default)}</b>
+            <span>ポジションサイズ</span><b>{latest.get('position_size','—') if latest else '—'}</b>
+            <span>リスク/リワード</span><b>{f'1 : {rr:.2f}' if rr else '—'}</b>
           </div>
-        </div>""", unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
+
         with st.expander("✏️ 新しいトレード記録", expanded=False):
-            journal=load_journal()
-            j_date=st.date_input("日付",value=datetime.now().date(),key=f"jdate_{r['ticker']}")
-            position_type=st.selectbox("種別",["現物買い","信用買い","仮想（検討中）","売り"],key=f"ptype_{r['ticker']}")
-            in_point=st.number_input("INライン（現在値）",min_value=0.0,value=float(current_price),step=1.0,format="%.0f",key=f"in_{r['ticker']}")
-            p1,p2=st.columns(2)
-            with p1: stop_point=st.number_input("損切り",min_value=0.0,value=float(stop_default or 0),step=1.0,format="%.0f",key=f"stop_{r['ticker']}")
-            with p2: target_point=st.number_input("目標",min_value=0.0,value=float(target_default or 0),step=1.0,format="%.0f",key=f"tgt_{r['ticker']}")
-            trend_dir=st.selectbox("トレンド",["上昇","下降","横ばい（保ち合い）","底値圏","天井圏"],key=f"trend_{r['ticker']}")
-            volume_judge=st.selectbox("出来高",["増加（買い圧力あり）","減少","変化なし","急増（注目）"],key=f"vol_{r['ticker']}")
-            ma_status=st.selectbox("MA状況",["25MA > 75MA > 200MA（強気配列）","200MAを上抜け（転換シグナル）","200MAに接触中（サポート確認）","25MA < 75MA < 200MA（弱気配列）","MA収束中（ブレイク待ち）","その他"],key=f"ma_{r['ticker']}")
-            pattern=st.selectbox("チャートパターン",["底値圏での出来高増加","ダブルボトム形成中","ゴールデンクロス直前","三角保ち合いブレイク","高値更新（上昇継続）","デッドクロス警戒","特になし"],key=f"pattern_{r['ticker']}")
-            tech_comment=st.text_area("テクニカル根拠",height=55,key=f"tech_{r['ticker']}")
-            general_comment=st.text_area("総合所見",height=55,key=f"general_{r['ticker']}")
-            confidence=st.select_slider("確信度",options=[1,2,3,4,5],format_func=lambda x:"★"*x,key=f"conf_{r['ticker']}")
-            if st.button("📝 保存",type="primary",use_container_width=True,key=f"savej_{r['ticker']}"):
+            journal = load_journal()
+            j_date = st.date_input("日付", value=datetime.now().date(), key=f"jdate_{r['ticker']}")
+            position_type = st.selectbox("種別", ["現物買い", "信用買い", "仮想（検討中）", "売り"], key=f"ptype_{r['ticker']}")
+            # INは常に現在値を初期値にする
+            in_point = st.number_input("INライン（現在値）", min_value=0.0, value=float(current_price), step=1.0, format="%.0f", key=f"in_{r['ticker']}")
+            p1, p2 = st.columns(2)
+            with p1:
+                stop_point = st.number_input("損切り", min_value=0.0, value=float(stop_default or 0), step=1.0, format="%.0f", key=f"stop_{r['ticker']}")
+            with p2:
+                target_point = st.number_input("目標", min_value=0.0, value=float(target_default or 0), step=1.0, format="%.0f", key=f"tgt_{r['ticker']}")
+            trend_dir = st.selectbox("トレンド", ["上昇", "下降", "横ばい（保ち合い）", "底値圏", "天井圏"], key=f"trend_{r['ticker']}")
+            volume_judge = st.selectbox("出来高", ["増加（買い圧力あり）", "減少", "変化なし", "急増（注目）"], key=f"vol_{r['ticker']}")
+            ma_status = st.selectbox("MA状況", ["25MA > 75MA > 200MA（強気配列）", "200MAを上抜け（転換シグナル）", "200MAに接触中（サポート確認）", "25MA < 75MA < 200MA（弱気配列）", "MA収束中（ブレイク待ち）", "その他"], key=f"ma_{r['ticker']}")
+            pattern = st.selectbox("チャートパターン", ["底値圏での出来高増加", "ダブルボトム形成中", "ゴールデンクロス直前", "三角保ち合いブレイク", "高値更新（上昇継続）", "デッドクロス警戒", "特になし"], key=f"pattern_{r['ticker']}")
+            tech_comment = st.text_area("テクニカル根拠", height=75, key=f"tech_{r['ticker']}")
+            general_comment = st.text_area("総合所見", height=75, key=f"general_{r['ticker']}")
+            confidence = st.select_slider("確信度", options=[1,2,3,4,5], format_func=lambda x: "★"*x, key=f"conf_{r['ticker']}")
+            if st.button("📝 保存", type="primary", use_container_width=True, key=f"savej_{r['ticker']}"):
                 if tech_comment or general_comment:
-                    risk=abs(in_point-stop_point) if in_point and stop_point else 0; reward=abs(target_point-in_point) if in_point and target_point else 0; rr_ratio=round(reward/risk,2) if risk else None
-                    journal.insert(0,{"id":datetime.now().strftime("%Y%m%d%H%M%S%f"),"date":str(j_date),"ticker":r["ticker"],"name":r["name"],"position_type":position_type,"current_price":current_price,"in_point":current_price,"stop_point":stop_point or None,"target_point":target_point or None,"rr_ratio":rr_ratio,"trend_dir":trend_dir,"volume_judge":volume_judge,"ma_status":ma_status,"pattern":pattern,"tech_comment":tech_comment,"general_comment":general_comment,"confidence":confidence,"exit_date":None,"exit_price":None,"pnl":None,"pnl_pct":None,"result":"保有中","score_at_entry":r["total"]})
-                    save_journal(journal); st.success("保存しました"); st.rerun()
-                else: st.warning("テクニカル根拠または総合所見を入力してください")
+                    risk = abs(in_point-stop_point) if in_point and stop_point else 0
+                    reward = abs(target_point-in_point) if in_point and target_point else 0
+                    rr_ratio = round(reward/risk, 2) if risk else None
+                    journal.insert(0, {
+                        "id": datetime.now().strftime("%Y%m%d%H%M%S%f"), "date": str(j_date),
+                        "ticker": r["ticker"], "name": r["name"], "position_type": position_type,
+                        "current_price": current_price, "in_point": current_price,
+                        "stop_point": stop_point or None, "target_point": target_point or None,
+                        "rr_ratio": rr_ratio, "trend_dir": trend_dir, "volume_judge": volume_judge,
+                        "ma_status": ma_status, "pattern": pattern, "tech_comment": tech_comment,
+                        "general_comment": general_comment, "confidence": confidence,
+                        "exit_date": None, "exit_price": None, "pnl": None, "pnl_pct": None,
+                        "result": "保有中", "score_at_entry": r["total"]
+                    })
+                    save_journal(journal)
+                    st.success("保存しました")
+                    st.rerun()
+                else:
+                    st.warning("テクニカル根拠または総合所見を入力してください")
 
     with journal_col:
-        journal=load_journal(); entries=[j for j in journal if j.get("ticker")==r["ticker"]]
-        st.markdown(f'<div style="font-size:.88rem;font-weight:700;margin-bottom:.3rem">トレード日誌 <span style="color:#4a7fa5;font-size:.66rem">{len(entries)}件</span></div>',unsafe_allow_html=True)
-        if not entries: st.info("この銘柄の記録はまだありません。")
+        journal = load_journal()
+        entries = [j for j in journal if j.get("ticker") == r["ticker"]]
+        st.markdown(f'<div class="journal-panel"><div class="journal-panel-head"><span>トレード日誌</span><span class="journal-count">{len(entries)}件</span></div>', unsafe_allow_html=True)
+        if not entries:
+            st.markdown('<div class="empty-journal"><div class="empty-title">この銘柄の記録はまだありません。</div><div class="empty-text">「新しいトレード記録」からエントリーや決済の記録を残しましょう。</div></div>', unsafe_allow_html=True)
         else:
             for entry in entries[:6]:
-                result=entry.get("result","保有中"); result_color="#00e5a0" if result=="利確" else "#ef5350" if result=="損切" else "#ffd54f"; pnl=entry.get("pnl_pct"); pnl_text=f" / {pnl:+.2f}%" if pnl is not None else ""
+                result = entry.get("result", "保有中")
+                result_color = "#00e5a0" if result == "利確" else "#ef5350" if result == "損切" else "#ffd54f"
+                pnl = entry.get("pnl_pct")
+                pnl_text = f" / {pnl:+.2f}%" if pnl is not None else ""
                 st.markdown(f"""
-                <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:6px;padding:.45rem .6rem;margin-bottom:.28rem">
-                  <div style="display:grid;grid-template-columns:85px 1fr auto;gap:.45rem;align-items:center"><span style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#7fb3d3">{entry.get('date','')}</span><span style="font-size:.7rem;color:#e8f4ff">{entry.get('general_comment') or entry.get('tech_comment') or 'メモ'}</span><span style="font-size:.65rem;color:{result_color};font-weight:700">{result}{pnl_text}</span></div>
-                  <div style="display:flex;gap:.7rem;margin-top:.2rem;font-size:.61rem;color:#7fb3d3"><span>IN {_fmt_yen(entry.get('in_point'))}</span><span>損切 {_fmt_yen(entry.get('stop_point'))}</span><span>目標 {_fmt_yen(entry.get('target_point'))}</span><span>★{entry.get('confidence',1)}</span></div>
-                </div>""",unsafe_allow_html=True)
-                if result=="保有中" and entry.get("in_point"):
-                    with st.expander(f"決済を記録　{entry.get('date','')}",expanded=False):
-                        ex1,ex2,ex3=st.columns(3)
-                        with ex1: exit_price_input=st.number_input("決済価格",min_value=0.0,step=1.0,format="%.0f",key=f"exit_price_{entry['id']}")
-                        with ex2: exit_date_input=st.date_input("決済日",value=datetime.now().date(),key=f"exit_date_{entry['id']}")
-                        with ex3: exit_result=st.selectbox("結果",["利確","損切","期限切れ"],key=f"exit_result_{entry['id']}")
-                        if st.button("決済を保存",key=f"exit_save_{entry['id']}",type="primary") and exit_price_input>0:
-                            in_p=entry.get("in_point",0); pnl_val=exit_price_input-in_p; pnl_pct_val=round(pnl_val/in_p*100,2) if in_p else 0
+                <div class="journal-entry">
+                  <div class="journal-entry-top">
+                    <span class="journal-date">{entry.get('date','')}</span>
+                    <span class="journal-note">{entry.get('general_comment') or entry.get('tech_comment') or 'メモ'}</span>
+                    <span style="color:{result_color};font-weight:700">{result}{pnl_text}</span>
+                  </div>
+                  <div class="journal-entry-meta">
+                    <span>IN {_fmt_yen(entry.get('in_point'))}</span>
+                    <span>損切 {_fmt_yen(entry.get('stop_point'))}</span>
+                    <span>目標 {_fmt_yen(entry.get('target_point'))}</span>
+                    <span>★{entry.get('confidence',1)}</span>
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+                if result == "保有中" and entry.get("in_point"):
+                    with st.expander(f"決済を記録　{entry.get('date','')}", expanded=False):
+                        ex1, ex2, ex3 = st.columns(3)
+                        with ex1:
+                            exit_price_input = st.number_input("決済価格", min_value=0.0, step=1.0, format="%.0f", key=f"exit_price_{entry['id']}")
+                        with ex2:
+                            exit_date_input = st.date_input("決済日", value=datetime.now().date(), key=f"exit_date_{entry['id']}")
+                        with ex3:
+                            exit_result = st.selectbox("結果", ["利確", "損切", "期限切れ"], key=f"exit_result_{entry['id']}")
+                        if st.button("決済を保存", key=f"exit_save_{entry['id']}", type="primary") and exit_price_input > 0:
+                            in_p = entry.get("in_point", 0)
+                            pnl_val = exit_price_input - in_p
+                            pnl_pct_val = round(pnl_val / in_p * 100, 2) if in_p else 0
                             for j in journal:
-                                if j.get("id")==entry.get("id"):
-                                    j.update({"exit_price":exit_price_input,"exit_date":str(exit_date_input),"pnl":round(pnl_val,0),"pnl_pct":pnl_pct_val,"result":exit_result}); break
-                            save_journal(journal); st.rerun()
-                if st.button("削除",key=f"jdel_detail_{entry['id']}"):
-                    save_journal([j for j in journal if j.get("id")!=entry.get("id")]); st.rerun()
+                                if j.get("id") == entry.get("id"):
+                                    j.update({"exit_price": exit_price_input, "exit_date": str(exit_date_input), "pnl": round(pnl_val, 0), "pnl_pct": pnl_pct_val, "result": exit_result})
+                                    break
+                            save_journal(journal)
+                            st.rerun()
+                if st.button("削除", key=f"jdel_detail_{entry['id']}"):
+                    save_journal([j for j in journal if j.get("id") != entry.get("id")])
+                    st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def render_history_chart(ticker, history):
     if ticker not in history or len(history[ticker]) < 2:
