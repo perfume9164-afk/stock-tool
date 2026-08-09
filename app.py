@@ -1129,4 +1129,5 @@ def main():
     with tabs[5]:
         render_ai_tab(watchlist)
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
+
