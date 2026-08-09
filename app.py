@@ -59,6 +59,23 @@ html, body, [class*="css"] { font-family: 'Noto Sans JP', sans-serif; }
 .price-line-tgt  { color:#4fc3f7; font-family:'IBM Plex Mono',monospace; font-size:0.75rem; }
 section[data-testid="stSidebar"] { background:#0a0f1e; border-right:1px solid #1e3a5f; }
 [data-testid="metric-container"] { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:8px; padding:0.8rem; }
+/* compact dashboard */
+.block-container { padding-top:0.7rem !important; padding-bottom:0.7rem !important; max-width:100% !important; }
+.main-header { padding:0.75rem 1rem; margin:-0.7rem -0.7rem 0.7rem -0.7rem; border-radius:0 0 8px 8px; }
+.main-header h1 { font-size:1.25rem; }
+.main-header .subtitle { font-size:0.68rem; margin-top:0.1rem; }
+.score-card { padding:0.7rem 0.85rem; margin-bottom:0.4rem; border-radius:8px; }
+.section-head { margin-bottom:0.4rem; padding-bottom:0.25rem; }
+.market-panel { padding:0.65rem 0.8rem; margin-bottom:0.65rem; border-radius:8px; }
+.market-panel-title { margin-bottom:0.45rem; }
+.market-index-card { padding:0.5rem 0.65rem; }
+.metric-row { gap:0.3rem; margin-top:0.4rem; }
+.metric-pill { padding:0.16rem 0.4rem; font-size:0.64rem; }
+.journal-card { padding:0.6rem 0.7rem; margin-bottom:0.3rem; border-radius:7px; }
+[data-testid="stVerticalBlock"] { gap:0.4rem; }
+div[data-testid="stHorizontalBlock"] { gap:0.5rem; }
+.stButton > button { min-height:2rem; padding:0.2rem 0.65rem; }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -495,49 +512,151 @@ def render_card_with_delete(r, watchlist):
             st.cache_data.clear()
             st.rerun()
 
-def render_detail(r):
-    if "error" in r:
-        return
-    st.markdown(f'<div class="section-head">詳細分析 — {r["name"]}</div>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("**📊 ファンダスコア内訳**")
-        fa_df = pd.DataFrame(list(r["funda"]["details"].items()), columns=["指標", "スコア"])
-        fig = px.bar(fa_df, x="スコア", y="指標", orientation="h",
-                     color="スコア", color_continuous_scale=["#ef5350","#ffd54f","#00e5a0"], range_color=[0,10])
-        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                          font_color="#e8f4ff", margin=dict(l=0,r=0,t=10,b=0), height=220, showlegend=False, coloraxis_showscale=False)
-        fig.update_xaxes(gridcolor="#1e3a5f", range=[0,10])
-        fig.update_yaxes(gridcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig, use_container_width=True)
-    with col2:
-        st.markdown("**📈 チャートスコア内訳**")
-        ch_df = pd.DataFrame(list(r["chart"]["details"].items()), columns=["指標", "スコア"])
-        fig2 = px.bar(ch_df, x="スコア", y="指標", orientation="h",
-                      color="スコア", color_continuous_scale=["#ef5350","#ffd54f","#00e5a0"], range_color=[0,10])
-        fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                           font_color="#e8f4ff", margin=dict(l=0,r=0,t=10,b=0), height=220, showlegend=False, coloraxis_showscale=False)
-        fig2.update_xaxes(gridcolor="#1e3a5f", range=[0,15])
-        fig2.update_yaxes(gridcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig2, use_container_width=True)
+def _latest_journal_for_ticker(ticker):
+    entries = [j for j in load_journal() if j.get("ticker") == ticker]
+    return entries[0] if entries else None
 
-    hist, _, _ = fetch_stock_data(r["ticker"])
-    if hist is not None and len(hist) > 0:
-        st.markdown("**🕯 株価チャート（2年）**")
-        hist = hist.reset_index()
-        hist["MA25"]  = hist["Close"].rolling(25).mean()
-        hist["MA75"]  = hist["Close"].rolling(75).mean()
-        hist["MA200"] = hist["Close"].rolling(200).mean()
-        fig3 = go.Figure()
-        fig3.add_trace(go.Candlestick(x=hist["Date"], open=hist["Open"], high=hist["High"],
-            low=hist["Low"], close=hist["Close"], name="株価",
-            increasing_line_color="#00e5a0", decreasing_line_color="#ef5350"))
-        for col, color, lbl in [("MA25","#ffd54f","MA25"),("MA75","#4fc3f7","MA75"),("MA200","#ff7043","MA200")]:
-            fig3.add_trace(go.Scatter(x=hist["Date"], y=hist[col], line=dict(color=color, width=1.2), name=lbl, opacity=0.8))
-        fig3.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0a0f1e", font_color="#e8f4ff",
-            xaxis=dict(gridcolor="#1e3a5f", rangeslider_visible=False), yaxis=dict(gridcolor="#1e3a5f"),
-            legend=dict(bgcolor="rgba(0,0,0,0)"), height=350, margin=dict(l=0,r=0,t=10,b=0))
-        st.plotly_chart(fig3, use_container_width=True)
+
+def _fmt_yen(v):
+    return f"¥{v:,.0f}" if v is not None else "—"
+
+
+def render_detail(r):
+    """銘柄詳細＋トレード日誌を一体化したコンパクト画面"""
+    if "error" in r:
+        st.error(r.get("error", "データ取得エラー"))
+        return
+    fa, ch = r["funda"], r["chart"]
+    latest = _latest_journal_for_ticker(r["ticker"])
+    current_price = safe_float(r.get("price")) or 0
+    chg_cls = "price-change-pos" if r.get("chg", 0) >= 0 else "price-change-neg"
+    chg_sign = "+" if r.get("chg", 0) >= 0 else ""
+    v_label, _, v_cls = verdict(r["total"])
+
+    st.markdown(f"""
+    <div style="background:linear-gradient(135deg,#0b1830,#0d223f);border:1px solid #1e3a5f;border-radius:8px;padding:.72rem .9rem;margin-bottom:.4rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
+        <div><div class="ticker-label">{r['ticker']}</div><div style="font-size:1.35rem;font-weight:700;color:#e8f4ff;line-height:1.1">{r['name']}</div></div>
+        <div style="display:flex;align-items:center;gap:1.25rem;text-align:right">
+          <div><div style="font-family:'IBM Plex Mono',monospace;font-size:1.5rem;color:#e8f4ff">¥{current_price:,.0f}</div><div class="{chg_cls}" style="font-family:'IBM Plex Mono',monospace;font-size:.72rem">{chg_sign}{r.get('chg',0):,.0f} ({chg_sign}{r.get('chg_pct',0):.2f}%)</div></div>
+          <div><div class="score-badge {r['score_cls']}" style="font-size:2rem">{r['total']}</div><div style="font-size:.58rem;color:#4a7fa5">/ 100点</div></div>
+          <span class="verdict {v_cls}">{v_label}</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);margin-top:.55rem;border-top:1px solid #1e3a5f;padding-top:.45rem;font-size:.72rem">
+        <div><span style="color:#4a7fa5;font-size:.58rem">PER</span><br><b>{fa.get('per'):.1f}倍</b></div>
+        <div><span style="color:#4a7fa5;font-size:.58rem">PBR</span><br><b>{fa.get('pbr'):.2f}倍</b></div>
+        <div><span style="color:#4a7fa5;font-size:.58rem">ROE</span><br><b>{fa.get('roe')}%</b></div>
+        <div><span style="color:#4a7fa5;font-size:.58rem">RSI</span><br><b>{ch.get('rsi','—')}</b></div>
+        <div><span style="color:#4a7fa5;font-size:.58rem">52週位置</span><br><b>{ch.get('range_pos','—')}%</b></div>
+        <div><span style="color:#4a7fa5;font-size:.58rem">配当利回り</span><br><b>{fa.get('div_yield','—')}%</b></div>
+        <div><span style="color:#4a7fa5;font-size:.58rem">ファンダ</span><br><b>{fa['total']}/50</b></div>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
+    left, right = st.columns([0.72, 1.9], gap="small")
+    with left:
+        st.markdown('<div class="section-head">スコア内訳</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:7px;padding:.65rem .75rem">
+          <div style="display:flex;justify-content:space-between;font-size:.72rem"><span>ファンダメンタルズ</span><b>{fa['total']}/50</b></div>
+          <div style="height:5px;background:#1e3a5f;border-radius:4px;margin:.2rem 0 .6rem"><div style="width:{fa['total']*2}%;height:5px;background:#4fc3f7;border-radius:4px"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:.72rem"><span>テクニカル</span><b>{ch['total']}/50</b></div>
+          <div style="height:5px;background:#1e3a5f;border-radius:4px;margin-top:.2rem"><div style="width:{ch['total']*2}%;height:5px;background:#00e5a0;border-radius:4px"></div></div>
+        </div>""", unsafe_allow_html=True)
+        with st.expander("🤖 AIコメント", expanded=False):
+            if st.button("AI分析を生成", key=f"detail_ai_{r['ticker']}"):
+                with st.spinner("AI分析中…"):
+                    ms = fetch_market_indices()
+                    entries = [j for j in load_journal() if j.get("ticker") == r["ticker"]]
+                    st.session_state[f"detail_ai_result_{r['ticker']}"] = call_gemini(build_analysis_prompt(r["ticker"], r["name"], r, entries, ms))
+            if st.session_state.get(f"detail_ai_result_{r['ticker']}"):
+                st.markdown(st.session_state[f"detail_ai_result_{r['ticker']}"])
+            else:
+                st.caption("必要なときだけAI分析を生成できます。")
+
+    with right:
+        st.markdown('<div class="section-head">株価チャート（2年）</div>', unsafe_allow_html=True)
+        hist, _, _ = fetch_stock_data(r["ticker"])
+        if hist is not None and len(hist) > 0:
+            hist = hist.reset_index()
+            for ma in (25,75,200): hist[f"MA{ma}"] = hist["Close"].rolling(ma).mean()
+            fig = go.Figure()
+            fig.add_trace(go.Candlestick(x=hist["Date"],open=hist["Open"],high=hist["High"],low=hist["Low"],close=hist["Close"],name="株価",increasing_line_color="#00e5a0",decreasing_line_color="#ef5350"))
+            for col,color,lbl in [("MA25","#ffd54f","25MA"),("MA75","#4fc3f7","75MA"),("MA200","#ff7043","200MA")]:
+                fig.add_trace(go.Scatter(x=hist["Date"],y=hist[col],line=dict(color=color,width=1),name=lbl,opacity=.75))
+            if current_price:
+                fig.add_hline(y=current_price,line_dash="dot",line_color="#00e5a0",opacity=.75,annotation_text=f"IN / 現在値 ¥{current_price:,.0f}",annotation_position="top left")
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#0a0f1e",font_color="#e8f4ff",xaxis=dict(gridcolor="#1e3a5f",rangeslider_visible=False),yaxis=dict(gridcolor="#1e3a5f"),legend=dict(bgcolor="rgba(0,0,0,0)",orientation="h",y=1.02),height=300,margin=dict(l=0,r=0,t=16,b=0))
+            st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+        else:
+            st.info("チャートデータを取得できませんでした。")
+
+    st.markdown('<div class="section-head" style="margin-top:.05rem">トレード計画 ＆ トレード日誌</div>', unsafe_allow_html=True)
+    plan_col, journal_col = st.columns([0.72,1.45], gap="small")
+    with plan_col:
+        stop_default = safe_float(latest.get("stop_point")) if latest else None
+        target_default = safe_float(latest.get("target_point")) if latest else None
+        rr = None
+        if current_price and stop_default and target_default and abs(current_price-stop_default)>0: rr=abs(target_default-current_price)/abs(current_price-stop_default)
+        st.markdown(f"""
+        <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:7px;padding:.6rem .7rem">
+          <div style="font-size:.88rem;font-weight:700;margin-bottom:.4rem">トレードプラン</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:.3rem .6rem;font-size:.75rem">
+            <span style="color:#7fb3d3">IN（エントリー）</span><b style="color:#00e5a0">{_fmt_yen(current_price)}（現在価格）</b>
+            <span style="color:#7fb3d3">利益目標（TGT）</span><b style="color:#4fc3f7">{_fmt_yen(target_default)}</b>
+            <span style="color:#7fb3d3">損切り（STOP）</span><b style="color:#ef5350">{_fmt_yen(stop_default)}</b>
+            <span style="color:#7fb3d3">リスク/リワード</span><b>{f'1 : {rr:.2f}' if rr else '—'}</b>
+          </div>
+        </div>""", unsafe_allow_html=True)
+        with st.expander("✏️ 新しいトレード記録", expanded=False):
+            journal=load_journal()
+            j_date=st.date_input("日付",value=datetime.now().date(),key=f"jdate_{r['ticker']}")
+            position_type=st.selectbox("種別",["現物買い","信用買い","仮想（検討中）","売り"],key=f"ptype_{r['ticker']}")
+            in_point=st.number_input("INライン（現在値）",min_value=0.0,value=float(current_price),step=1.0,format="%.0f",key=f"in_{r['ticker']}")
+            p1,p2=st.columns(2)
+            with p1: stop_point=st.number_input("損切り",min_value=0.0,value=float(stop_default or 0),step=1.0,format="%.0f",key=f"stop_{r['ticker']}")
+            with p2: target_point=st.number_input("目標",min_value=0.0,value=float(target_default or 0),step=1.0,format="%.0f",key=f"tgt_{r['ticker']}")
+            trend_dir=st.selectbox("トレンド",["上昇","下降","横ばい（保ち合い）","底値圏","天井圏"],key=f"trend_{r['ticker']}")
+            volume_judge=st.selectbox("出来高",["増加（買い圧力あり）","減少","変化なし","急増（注目）"],key=f"vol_{r['ticker']}")
+            ma_status=st.selectbox("MA状況",["25MA > 75MA > 200MA（強気配列）","200MAを上抜け（転換シグナル）","200MAに接触中（サポート確認）","25MA < 75MA < 200MA（弱気配列）","MA収束中（ブレイク待ち）","その他"],key=f"ma_{r['ticker']}")
+            pattern=st.selectbox("チャートパターン",["底値圏での出来高増加","ダブルボトム形成中","ゴールデンクロス直前","三角保ち合いブレイク","高値更新（上昇継続）","デッドクロス警戒","特になし"],key=f"pattern_{r['ticker']}")
+            tech_comment=st.text_area("テクニカル根拠",height=55,key=f"tech_{r['ticker']}")
+            general_comment=st.text_area("総合所見",height=55,key=f"general_{r['ticker']}")
+            confidence=st.select_slider("確信度",options=[1,2,3,4,5],format_func=lambda x:"★"*x,key=f"conf_{r['ticker']}")
+            if st.button("📝 保存",type="primary",use_container_width=True,key=f"savej_{r['ticker']}"):
+                if tech_comment or general_comment:
+                    risk=abs(in_point-stop_point) if in_point and stop_point else 0; reward=abs(target_point-in_point) if in_point and target_point else 0; rr_ratio=round(reward/risk,2) if risk else None
+                    journal.insert(0,{"id":datetime.now().strftime("%Y%m%d%H%M%S%f"),"date":str(j_date),"ticker":r["ticker"],"name":r["name"],"position_type":position_type,"current_price":current_price,"in_point":current_price,"stop_point":stop_point or None,"target_point":target_point or None,"rr_ratio":rr_ratio,"trend_dir":trend_dir,"volume_judge":volume_judge,"ma_status":ma_status,"pattern":pattern,"tech_comment":tech_comment,"general_comment":general_comment,"confidence":confidence,"exit_date":None,"exit_price":None,"pnl":None,"pnl_pct":None,"result":"保有中","score_at_entry":r["total"]})
+                    save_journal(journal); st.success("保存しました"); st.rerun()
+                else: st.warning("テクニカル根拠または総合所見を入力してください")
+
+    with journal_col:
+        journal=load_journal(); entries=[j for j in journal if j.get("ticker")==r["ticker"]]
+        st.markdown(f'<div style="font-size:.88rem;font-weight:700;margin-bottom:.3rem">トレード日誌 <span style="color:#4a7fa5;font-size:.66rem">{len(entries)}件</span></div>',unsafe_allow_html=True)
+        if not entries: st.info("この銘柄の記録はまだありません。")
+        else:
+            for entry in entries[:6]:
+                result=entry.get("result","保有中"); result_color="#00e5a0" if result=="利確" else "#ef5350" if result=="損切" else "#ffd54f"; pnl=entry.get("pnl_pct"); pnl_text=f" / {pnl:+.2f}%" if pnl is not None else ""
+                st.markdown(f"""
+                <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:6px;padding:.45rem .6rem;margin-bottom:.28rem">
+                  <div style="display:grid;grid-template-columns:85px 1fr auto;gap:.45rem;align-items:center"><span style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#7fb3d3">{entry.get('date','')}</span><span style="font-size:.7rem;color:#e8f4ff">{entry.get('general_comment') or entry.get('tech_comment') or 'メモ'}</span><span style="font-size:.65rem;color:{result_color};font-weight:700">{result}{pnl_text}</span></div>
+                  <div style="display:flex;gap:.7rem;margin-top:.2rem;font-size:.61rem;color:#7fb3d3"><span>IN {_fmt_yen(entry.get('in_point'))}</span><span>損切 {_fmt_yen(entry.get('stop_point'))}</span><span>目標 {_fmt_yen(entry.get('target_point'))}</span><span>★{entry.get('confidence',1)}</span></div>
+                </div>""",unsafe_allow_html=True)
+                if result=="保有中" and entry.get("in_point"):
+                    with st.expander(f"決済を記録　{entry.get('date','')}",expanded=False):
+                        ex1,ex2,ex3=st.columns(3)
+                        with ex1: exit_price_input=st.number_input("決済価格",min_value=0.0,step=1.0,format="%.0f",key=f"exit_price_{entry['id']}")
+                        with ex2: exit_date_input=st.date_input("決済日",value=datetime.now().date(),key=f"exit_date_{entry['id']}")
+                        with ex3: exit_result=st.selectbox("結果",["利確","損切","期限切れ"],key=f"exit_result_{entry['id']}")
+                        if st.button("決済を保存",key=f"exit_save_{entry['id']}",type="primary") and exit_price_input>0:
+                            in_p=entry.get("in_point",0); pnl_val=exit_price_input-in_p; pnl_pct_val=round(pnl_val/in_p*100,2) if in_p else 0
+                            for j in journal:
+                                if j.get("id")==entry.get("id"):
+                                    j.update({"exit_price":exit_price_input,"exit_date":str(exit_date_input),"pnl":round(pnl_val,0),"pnl_pct":pnl_pct_val,"result":exit_result}); break
+                            save_journal(journal); st.rerun()
+                if st.button("削除",key=f"jdel_detail_{entry['id']}"):
+                    save_journal([j for j in journal if j.get("id")!=entry.get("id")]); st.rerun()
 
 def render_history_chart(ticker, history):
     if ticker not in history or len(history[ticker]) < 2:
@@ -1136,7 +1255,7 @@ def main():
             save_history(history)
             st.success("保存しました ✅")
 
-    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析", "🤖 AI分析"])
+    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細・トレード日誌", "📈 スコア履歴", "📊 損益分析", "🤖 AI分析"])
 
     with tabs[0]:
         with st.spinner("市場指標を取得中…"):
@@ -1170,7 +1289,7 @@ def main():
             st.info("サイドバーから銘柄を追加してください。")
         else:
             selected = st.selectbox("銘柄を選択", list(watchlist.keys()),
-                                    format_func=lambda t: f"{t}　{watchlist[t]}")
+                                    format_func=lambda t: f"{t}　{watchlist[t]}", key="detail_trade_select")
             with st.spinner("分析中…"):
                 r = score_stock(selected, watchlist[selected])
             render_detail(r)
@@ -1189,15 +1308,10 @@ def main():
                 st.dataframe(df_h, use_container_width=True)
 
     with tabs[3]:
-        render_journal_tab(watchlist)
-
-    with tabs[4]:
         render_correlation_tab(watchlist)
 
-    with tabs[5]:
+    with tabs[4]:
         render_ai_tab(watchlist)
 
 if __name__ == "__main__":
     main()
-
-
