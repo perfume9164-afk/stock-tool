@@ -1067,7 +1067,7 @@ def main():
             save_history(history)
             st.success("保存しました ✅")
 
-    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析"])
+    tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析", "🤖 AI分析"])
 
     with tabs[0]:
         with st.spinner("市場指標を取得中…"):
@@ -1117,7 +1117,6 @@ def main():
             if selected_h in history and history[selected_h]:
                 df_h = pd.DataFrame(history[selected_h])
                 df_h = df_h.sort_values("date", ascending=False).reset_index(drop=True)
-                tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析", "🤖 AI分析"])
                 st.dataframe(df_h, use_container_width=True)
 
     with tabs[3]:
@@ -1131,3 +1130,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
