@@ -1130,4 +1130,4 @@ def main():
         render_ai_tab(watchlist)
 
 if __name__ == "__main__":
-
+    main()
