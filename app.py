@@ -101,6 +101,23 @@ JP_NAME_MASTER = {
     "6315.T": "TOWA",
     "6526.T": "ソシオネクスト",
     "5803.T": "フジクラ",
+    "6702.T": "富士通",
+    "7013.T": "IHI",
+    "3660.T": "アイスタイル",
+    "3962.T": "チェンジホールディングス",
+    "6653.T": "正興電機製作所",
+    "6405.T": "鈴茂器工",
+    "8309.T": "三井住友トラストグループ",
+    "4188.T": "三菱ケミカルグループ",
+    "4519.T": "中外製薬",
+    "5595.T": "QPS研究所",
+    "3901.T": "マークラインズ",
+    "1882.T": "東亜道路工業",
+    "9513.T": "電源開発",
+    "9348.T": "ispace",
+    "3741.T": "セック",
+    "7157.T": "ライフネット生命保険",
+    "8136.T": "サンリオ",
 }
 
 def load_json(path, default):
@@ -203,15 +220,21 @@ def compute_funda_score(info):
         scores["売上成長"] = 10 if g >= 15 else 8 if g >= 10 else 6 if g >= 5 else 4 if g >= 0 else 1
     else:
         scores["売上成長"] = 0
+    # 配当利回りは「年間配当金 ÷ 株価 × 100」で再計算する。
+    # dividendYield の返却形式に依存しないため、銘柄ごとの表示が正しくなる。
+    dividend_rate = safe_float(info.get("dividendRate"))
+    current_price = safe_float(info.get("currentPrice") or info.get("regularMarketPrice"))
     dy_raw = safe_float(info.get("dividendYield"))
-    # yfinanceのバージョンや取得元によって、配当利回りが
-    # 「0.95（=0.95%）」または「0.0095（=0.95%）」で返る場合があるため正規化。
-    if dy_raw is not None:
-        d = dy_raw if dy_raw > 1 else dy_raw * 100
-        dy = d
-        scores["配当"] = 5 if d >= 3 else 4 if d >= 2 else 3 if d >= 1 else 2
+    if dividend_rate is not None and current_price and current_price > 0:
+        dy = dividend_rate / current_price * 100
+    elif dy_raw is not None:
+        # fallback: 0.0095 = 0.95% の通常形式を想定
+        dy = dy_raw * 100 if dy_raw <= 1 else dy_raw
     else:
         dy = None
+    if dy is not None:
+        scores["配当"] = 5 if dy >= 3 else 4 if dy >= 2 else 3 if dy >= 1 else 2
+    else:
         scores["配当"] = 1
     de = safe_float(info.get("debtToEquity"))
     scores["財務"] = (5 if de < 30 else 4 if de < 60 else 3 if de < 100 else 1) if de is not None else 0
@@ -337,6 +360,10 @@ def get_company_name(ticker):
         return ticker
 
 def score_stock(ticker, name):
+    # 保存済みwatchlistに古い英語名が残っていても、表示時は日本語名を再解決する。
+    display_name = get_company_name(ticker)
+    if display_name and display_name != ticker:
+        name = display_name
     hist, info, err = fetch_stock_data(ticker)
     if err:
         return {"ticker": ticker, "name": name, "error": err}
@@ -1062,11 +1089,23 @@ def main():
     """, unsafe_allow_html=True)
 
     watchlist = load_watchlist()
+    # 既存watchlistに保存された英語名も日本語名へ更新
+    for _ticker in list(watchlist.keys()):
+        _jp_name = get_company_name(_ticker)
+        if _jp_name and _jp_name != _ticker:
+            watchlist[_ticker] = _jp_name
+    save_watchlist(watchlist)
     history   = load_history()
 
     with st.sidebar:
         render_watchlist_manager(watchlist)
         watchlist = load_watchlist()
+        # 追加・再読込後も日本語名を維持
+        for _ticker in list(watchlist.keys()):
+            _jp_name = get_company_name(_ticker)
+            if _jp_name and _jp_name != _ticker:
+                watchlist[_ticker] = _jp_name
+        save_watchlist(watchlist)
         st.divider()
         st.markdown('<div class="section-head">スコア基準</div>', unsafe_allow_html=True)
         st.markdown("""
@@ -1160,4 +1199,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
