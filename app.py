@@ -735,7 +735,7 @@ def render_ai_tab(watchlist):
             market_scores = fetch_market_indices()
             # 日誌メモ取得
             journal = load_journal()
-            journal_entries = [j for j in journal if j["ticker"] == selected]
+            journal_entries = [j for j in journal if j["ticker"] == selected][:20]
             # プロンプト構築
             prompt = build_analysis_prompt(
                 selected, watchlist[selected],
@@ -919,9 +919,10 @@ def render_journal_tab(watchlist):
                 if (filter_ticker == "すべて" or j["ticker"] == filter_ticker)
                 and (filter_type == "すべて" or j.get("position_type") == filter_type)]
 
-    if not filtered:
+if not filtered:
         st.info("メモがまだありません。上のフォームから追加してください。")
     else:
+        st.markdown(f'<div style="font-size:0.75rem;color:#4a7fa5;margin-bottom:0.5rem;">全{len(filtered)}件</div>', unsafe_allow_html=True)
         for entry in filtered:
             stars    = "★" * entry.get("confidence", 1) + "☆" * (5 - entry.get("confidence", 1))
             cur_p    = f"現在値 ¥{entry['current_price']:,.0f}" if entry.get("current_price") else "現在値 —"
