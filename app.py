@@ -1117,7 +1117,7 @@ def main():
             if selected_h in history and history[selected_h]:
                 df_h = pd.DataFrame(history[selected_h])
                 df_h = df_h.sort_values("date", ascending=False).reset_index(drop=True)
-                df_h.columns = ["日付", "合計", "ファンダ", "チャート", "株価", "メモ"]
+                tabs = st.tabs(["📋 スコアボード", "🔍 銘柄詳細", "📈 スコア履歴", "📓 トレード日誌", "📊 損益分析", "🤖 AI分析"])
                 st.dataframe(df_h, use_container_width=True)
 
     with tabs[3]:
