@@ -2,7 +2,7 @@ name: 毎朝スコア更新
 
 on:
   schedule:
-    # 毎朝 JST 9:15（UTC 00:15）月〜金に実行
+    # 毎朝 JST 16:00（UTC 00:15）月〜金に実行
     - cron: '15 0 * * 1-5'
   workflow_dispatch:  # 手動実行も可能
 
