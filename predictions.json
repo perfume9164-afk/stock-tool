@@ -1,0 +1,658 @@
+[
+  {
+    "date": "2026-08-14",
+    "generated_at": "2026-08-14T17:54:06.033448",
+    "top10": [
+      {
+        "ticker": "7269.T",
+        "name": "SUZUKI MOTOR CORP",
+        "price": 2086.5,
+        "chg_pct": 4.3,
+        "volume": 8220700,
+        "total": 78,
+        "funda": {
+          "total": 45,
+          "per": 9.164983,
+          "pbr": 1.1373628,
+          "roe": 15.3,
+          "div_yield": 2.49
+        },
+        "chart": {
+          "total": 33,
+          "details": {
+            "RSI": 7,
+            "MA配列": 15,
+            "出来高": 8,
+            "BB": 2,
+            "52週位置": 1
+          },
+          "rsi": 58.3,
+          "price": 2086.5,
+          "ma25": 2028.2,
+          "ma75": 1935.0,
+          "ma200": 2077.0,
+          "bb_pos": 71.4,
+          "range_pos": 56.5
+        }
+      },
+      {
+        "ticker": "4005.T",
+        "name": "SUMITOMO CHEMICAL COMPANY",
+        "price": 530.5,
+        "chg_pct": 0.28,
+        "volume": 12997500,
+        "total": 76,
+        "funda": {
+          "total": 40,
+          "per": 14.283792,
+          "pbr": 0.79436266,
+          "roe": 13.2,
+          "div_yield": 3.02
+        },
+        "chart": {
+          "total": 36,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 10,
+            "BB": 5,
+            "52週位置": 1
+          },
+          "rsi": 46.8,
+          "price": 530.5,
+          "ma25": 526.1,
+          "ma75": 545.3,
+          "ma200": 506.7,
+          "bb_pos": 59.1,
+          "range_pos": 65.1
+        }
+      },
+      {
+        "ticker": "6902.T",
+        "name": "DENSO CORP",
+        "price": 1955.0,
+        "chg_pct": 2.81,
+        "volume": 8367600,
+        "total": 74,
+        "funda": {
+          "total": 40,
+          "per": 11.996809,
+          "pbr": 0.95860916,
+          "roe": 9.2,
+          "div_yield": 3.79
+        },
+        "chart": {
+          "total": 34,
+          "details": {
+            "RSI": 10,
+            "MA配列": 5,
+            "出来高": 9,
+            "BB": 5,
+            "52週位置": 5
+          },
+          "rsi": 48.4,
+          "price": 1955.0,
+          "ma25": 1976.4,
+          "ma75": 1919.3,
+          "ma200": 2007.8,
+          "bb_pos": 41.0,
+          "range_pos": 28.1
+        }
+      },
+      {
+        "ticker": "8750.T",
+        "name": "DAIICHI LIFE GROUP INC",
+        "price": 1874.0,
+        "chg_pct": -0.53,
+        "volume": 7652100,
+        "total": 74,
+        "funda": {
+          "total": 41,
+          "per": 15.445479,
+          "pbr": 1.4758415,
+          "roe": 13.6,
+          "div_yield": 3.84
+        },
+        "chart": {
+          "total": 33,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 5,
+            "BB": 7,
+            "52週位置": 1
+          },
+          "rsi": 43.9,
+          "price": 1874.0,
+          "ma25": 1886.9,
+          "ma75": 1739.3,
+          "ma200": 1478.3,
+          "bb_pos": 37.2,
+          "range_pos": 90.7
+        }
+      },
+      {
+        "ticker": "2181.T",
+        "name": "PERSOL HOLDINGS CO LTD",
+        "price": 287.9,
+        "chg_pct": 1.8,
+        "volume": 13316600,
+        "total": 73,
+        "funda": {
+          "total": 41,
+          "per": 15.018257,
+          "pbr": 2.900405,
+          "roe": 20.7,
+          "div_yield": 4.52
+        },
+        "chart": {
+          "total": 32,
+          "details": {
+            "RSI": 6,
+            "MA配列": 15,
+            "出来高": 10,
+            "BB": 0,
+            "52週位置": 1
+          },
+          "rsi": 68.9,
+          "price": 287.9,
+          "ma25": 265.5,
+          "ma75": 249.6,
+          "ma200": 253.8,
+          "bb_pos": 100.2,
+          "range_pos": 94.9
+        }
+      },
+      {
+        "ticker": "9107.T",
+        "name": "KAWASAKI KISEN KAISHA",
+        "price": 3030.0,
+        "chg_pct": 4.36,
+        "volume": 7773700,
+        "total": 72,
+        "funda": {
+          "total": 42,
+          "per": 14.3942995,
+          "pbr": 1.0556407,
+          "roe": 7.6,
+          "div_yield": 3.96
+        },
+        "chart": {
+          "total": 30,
+          "details": {
+            "RSI": 6,
+            "MA配列": 15,
+            "出来高": 8,
+            "BB": 0,
+            "52週位置": 1
+          },
+          "rsi": 67.5,
+          "price": 3030.0,
+          "ma25": 2778.3,
+          "ma75": 2621.2,
+          "ma200": 2415.6,
+          "bb_pos": 112.6,
+          "range_pos": 100.0
+        }
+      },
+      {
+        "ticker": "5802.T",
+        "name": "SUMITOMO ELECTRIC INDUSTRIES",
+        "price": 2386.0,
+        "chg_pct": 2.21,
+        "volume": 27793500,
+        "total": 71,
+        "funda": {
+          "total": 38,
+          "per": 20.158838,
+          "pbr": 2.6256337,
+          "roe": 15.8,
+          "div_yield": 1.63
+        },
+        "chart": {
+          "total": 33,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 10,
+            "BB": 2,
+            "52週位置": 1
+          },
+          "rsi": 47.1,
+          "price": 2386.0,
+          "ma25": 2312.7,
+          "ma75": 2705.6,
+          "ma200": 2206.9,
+          "bb_pos": 71.3,
+          "range_pos": 57.1
+        }
+      },
+      {
+        "ticker": "7203.T",
+        "name": "TOYOTA MOTOR CORP",
+        "price": 3020.0,
+        "chg_pct": 1.17,
+        "volume": 22125700,
+        "total": 70,
+        "funda": {
+          "total": 40,
+          "per": 8.595907,
+          "pbr": 0.9585488,
+          "roe": 12.4,
+          "div_yield": 3.31
+        },
+        "chart": {
+          "total": 30,
+          "details": {
+            "RSI": 7,
+            "MA配列": 10,
+            "出来高": 7,
+            "BB": 3,
+            "52週位置": 3
+          },
+          "rsi": 57.9,
+          "price": 3020.0,
+          "ma25": 2953.7,
+          "ma75": 2911.1,
+          "ma200": 3165.8,
+          "bb_pos": 61.3,
+          "range_pos": 32.9
+        }
+      },
+      {
+        "ticker": "8058.T",
+        "name": "MITSUBISHI CORP",
+        "price": 4769.0,
+        "chg_pct": -1.3,
+        "volume": 9006600,
+        "total": 70,
+        "funda": {
+          "total": 37,
+          "per": 22.740927,
+          "pbr": 1.812869,
+          "roe": 10.1,
+          "div_yield": 2.62
+        },
+        "chart": {
+          "total": 33,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 7,
+            "BB": 5,
+            "52週位置": 1
+          },
+          "rsi": 39.7,
+          "price": 4769.0,
+          "ma25": 4711.5,
+          "ma75": 4850.8,
+          "ma200": 4528.3,
+          "bb_pos": 49.3,
+          "range_pos": 62.5
+        }
+      },
+      {
+        "ticker": "9432.T",
+        "name": "NTT INC",
+        "price": 162.7,
+        "chg_pct": 1.37,
+        "volume": 269560000,
+        "total": 69,
+        "funda": {
+          "total": 38,
+          "per": 12.892235,
+          "pbr": 1.3438506,
+          "roe": 10.7,
+          "div_yield": 3.32
+        },
+        "chart": {
+          "total": 31,
+          "details": {
+            "RSI": 7,
+            "MA配列": 15,
+            "出来高": 8,
+            "BB": 0,
+            "52週位置": 1
+          },
+          "rsi": 66.6,
+          "price": 162.7,
+          "ma25": 153.7,
+          "ma75": 150.3,
+          "ma200": 152.1,
+          "bb_pos": 97.1,
+          "range_pos": 100.0
+        }
+      }
+    ],
+    "ai_comment": "GEMINI_API_KEYが設定されていません",
+    "user_comments": []
+  },
+  {
+    "date": "2026-08-13",
+    "generated_at": "2026-08-13T20:13:12.540529",
+    "top10": [
+      {
+        "ticker": "8604.T",
+        "name": "NOMURA HOLDINGS INC.",
+        "price": 1581.5,
+        "chg_pct": 0.99,
+        "volume": 7869500,
+        "total": 78,
+        "funda": {
+          "total": 40,
+          "per": 11.866886,
+          "pbr": 1.205464,
+          "roe": 11.2,
+          "div_yield": 3.22
+        },
+        "chart": {
+          "total": 38,
+          "details": {
+            "RSI": 10,
+            "MA配列": 15,
+            "出来高": 7,
+            "BB": 5,
+            "52週位置": 1
+          },
+          "rsi": 44.1,
+          "price": 1581.5,
+          "ma25": 1561.2,
+          "ma75": 1414.3,
+          "ma200": 1311.4,
+          "bb_pos": 59.1,
+          "range_pos": 93.5
+        }
+      },
+      {
+        "ticker": "5802.T",
+        "name": "SUMITOMO ELECTRIC INDUSTRIES",
+        "price": 2334.5,
+        "chg_pct": 2.84,
+        "volume": 26732000,
+        "total": 76,
+        "funda": {
+          "total": 40,
+          "per": 19.702085,
+          "pbr": 2.5689614,
+          "roe": 15.8,
+          "div_yield": 1.67
+        },
+        "chart": {
+          "total": 36,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 10,
+            "BB": 5,
+            "52週位置": 1
+          },
+          "rsi": 43.8,
+          "price": 2334.5,
+          "ma25": 2311.7,
+          "ma75": 2707.8,
+          "ma200": 2200.5,
+          "bb_pos": 60.0,
+          "range_pos": 55.1
+        }
+      },
+      {
+        "ticker": "4005.T",
+        "name": "SUMITOMO CHEMICAL COMPANY",
+        "price": 529.0,
+        "chg_pct": 0.59,
+        "volume": 10675700,
+        "total": 76,
+        "funda": {
+          "total": 40,
+          "per": 14.247239,
+          "pbr": 0.7921166,
+          "roe": 13.2,
+          "div_yield": 3.02
+        },
+        "chart": {
+          "total": 36,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 10,
+            "BB": 5,
+            "52週位置": 1
+          },
+          "rsi": 41.4,
+          "price": 529.0,
+          "ma25": 526.5,
+          "ma75": 545.0,
+          "ma200": 506.3,
+          "bb_pos": 55.7,
+          "range_pos": 64.5
+        }
+      },
+      {
+        "ticker": "7203.T",
+        "name": "TOYOTA MOTOR CORP",
+        "price": 2985.0,
+        "chg_pct": -0.48,
+        "volume": 21779600,
+        "total": 75,
+        "funda": {
+          "total": 40,
+          "per": 8.498463,
+          "pbr": 0.9474398,
+          "roe": 12.4,
+          "div_yield": 3.35
+        },
+        "chart": {
+          "total": 35,
+          "details": {
+            "RSI": 7,
+            "MA配列": 10,
+            "出来高": 10,
+            "BB": 5,
+            "52週位置": 3
+          },
+          "rsi": 52.2,
+          "price": 2985.0,
+          "ma25": 2948.5,
+          "ma75": 2912.5,
+          "ma200": 3165.1,
+          "bb_pos": 52.6,
+          "range_pos": 30.2
+        }
+      },
+      {
+        "ticker": "2181.T",
+        "name": "PERSOL HOLDINGS CO LTD",
+        "price": 282.8,
+        "chg_pct": -0.42,
+        "volume": 11038800,
+        "total": 75,
+        "funda": {
+          "total": 43,
+          "per": 14.752216,
+          "pbr": 2.8490257,
+          "roe": 20.7,
+          "div_yield": 4.6
+        },
+        "chart": {
+          "total": 32,
+          "details": {
+            "RSI": 6,
+            "MA配列": 15,
+            "出来高": 10,
+            "BB": 0,
+            "52週位置": 1
+          },
+          "rsi": 67.6,
+          "price": 282.8,
+          "ma25": 264.4,
+          "ma75": 249.0,
+          "ma200": 253.6,
+          "bb_pos": 96.0,
+          "range_pos": 87.9
+        }
+      },
+      {
+        "ticker": "8750.T",
+        "name": "DAIICHI LIFE GROUP INC",
+        "price": 1884.0,
+        "chg_pct": 0.37,
+        "volume": 7144200,
+        "total": 73,
+        "funda": {
+          "total": 41,
+          "per": 15.538144,
+          "pbr": 1.4837168,
+          "roe": 13.6,
+          "div_yield": 3.82
+        },
+        "chart": {
+          "total": 32,
+          "details": {
+            "RSI": 10,
+            "MA配列": 10,
+            "出来高": 6,
+            "BB": 5,
+            "52週位置": 1
+          },
+          "rsi": 47.5,
+          "price": 1884.0,
+          "ma25": 1886.5,
+          "ma75": 1733.2,
+          "ma200": 1474.3,
+          "bb_pos": 43.5,
+          "range_pos": 91.8
+        }
+      },
+      {
+        "ticker": "4901.T",
+        "name": "FUJIFILM HOLDINGS CORPORATION",
+        "price": 3277.0,
+        "chg_pct": 2.47,
+        "volume": 8043700,
+        "total": 72,
+        "funda": {
+          "total": 39,
+          "per": 14.291321,
+          "pbr": 1.0050079,
+          "roe": 7.1,
+          "div_yield": 2.29
+        },
+        "chart": {
+          "total": 33,
+          "details": {
+            "RSI": 10,
+            "MA配列": 0,
+            "出来高": 10,
+            "BB": 10,
+            "52週位置": 3
+          },
+          "rsi": 37.5,
+          "price": 3277.0,
+          "ma25": 3623.5,
+          "ma75": 3405.1,
+          "ma200": 3278.3,
+          "bb_pos": 11.2,
+          "range_pos": 41.1
+        }
+      },
+      {
+        "ticker": "6902.T",
+        "name": "DENSO CORP",
+        "price": 1901.5,
+        "chg_pct": -2.01,
+        "volume": 12560400,
+        "total": 71,
+        "funda": {
+          "total": 40,
+          "per": 11.665645,
+          "pbr": 0.93237615,
+          "roe": 9.2,
+          "div_yield": 3.89
+        },
+        "chart": {
+          "total": 31,
+          "details": {
+            "RSI": 10,
+            "MA配列": 0,
+            "出来高": 9,
+            "BB": 7,
+            "52週位置": 5
+          },
+          "rsi": 43.0,
+          "price": 1901.5,
+          "ma25": 1976.0,
+          "ma75": 1918.4,
+          "ma200": 2008.8,
+          "bb_pos": 25.8,
+          "range_pos": 16.0
+        }
+      },
+      {
+        "ticker": "6758.T",
+        "name": "SONY GROUP CORPORATION",
+        "price": 3700.0,
+        "chg_pct": -1.65,
+        "volume": 14969000,
+        "total": 70,
+        "funda": {
+          "total": 33,
+          "per": 19.82851,
+          "pbr": 2.5961814,
+          "roe": 13.2,
+          "div_yield": 0.95
+        },
+        "chart": {
+          "total": 37,
+          "details": {
+            "RSI": 8,
+            "MA配列": 15,
+            "出来高": 8,
+            "BB": 3,
+            "52週位置": 3
+          },
+          "rsi": 62.8,
+          "price": 3700.0,
+          "ma25": 3556.8,
+          "ma75": 3440.6,
+          "ma200": 3666.3,
+          "bb_pos": 67.5,
+          "range_pos": 37.4
+        }
+      },
+      {
+        "ticker": "7267.T",
+        "name": "HONDA MOTOR CO",
+        "price": 1647.5,
+        "chg_pct": -1.02,
+        "volume": 12460000,
+        "total": 70,
+        "funda": {
+          "total": 36,
+          "per": 7.221443,
+          "pbr": 0.5188496,
+          "roe": -0.8,
+          "div_yield": 4.25
+        },
+        "chart": {
+          "total": 34,
+          "details": {
+            "RSI": 7,
+            "MA配列": 15,
+            "出来高": 8,
+            "BB": 3,
+            "52週位置": 1
+          },
+          "rsi": 58.5,
+          "price": 1647.5,
+          "ma25": 1585.4,
+          "ma75": 1461.8,
+          "ma200": 1465.2,
+          "bb_pos": 68.6,
+          "range_pos": 89.9
+        }
+      }
+    ],
+    "ai_comment": "GEMINI_API_KEYが設定されていません",
+    "user_comments": []
+  }
+]
