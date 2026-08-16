@@ -1168,7 +1168,7 @@ INタイミング、損切水準、目標株価を数字で示してください
 
 from pathlib import Path
 
-AI_PREDICTIONS_FILE = Path("predictions.json")
+AI_PREDICTIONS_FILE = Path("data/ai_predictions.json")
 
 def load_daily_ai_predictions():
     # まずローカルファイルを試す
@@ -1178,19 +1178,33 @@ def load_daily_ai_predictions():
                 return json.load(f)
     except Exception:
         pass
+
     # GitHubから直接読み込む
     try:
         import urllib.request
+        import base64
+
         token = st.secrets.get("GITHUB_TOKEN", "")
-        repo  = st.secrets.get("GITHUB_REPO", "perfume9164-afk/stock-tool")
-        url   = f"https://api.github.com/repos/{repo}/contents/predictions.json"
-        headers = {"Authorization": f"token {token}"} if token else {}
+        repo = st.secrets.get("GITHUB_REPO", "perfume9164-afk/stock-tool")
+
+        url = f"https://api.github.com/repos/{repo}/contents/data/ai_predictions.json"
+
+        headers = {}
+        if token:
+            headers["Authorization"] = f"token {token}"
+
         req = urllib.request.Request(url, headers=headers)
+
         with urllib.request.urlopen(req, timeout=10) as res:
-            import base64
-            content = json.loads(res.read())["content"]
-            return json.loads(base64.b64decode(content).decode("utf-8"))
+            result = json.loads(res.read())
+            content = result["content"]
+
+            return json.loads(
+                base64.b64decode(content).decode("utf-8")
+            )
+
     except Exception as e:
+        print(f"AI予想読み込みエラー: {e}")
         return {}
 
 def render_daily_ai_prediction_tab(watchlist):
@@ -1216,7 +1230,7 @@ def render_daily_ai_prediction_tab(watchlist):
 
     date_str    = entry.get("date", "—")
     generated   = entry.get("generated_at", "—")[:16] if entry.get("generated_at") else "—"
-    top10       = entry.get("top10", [])
+    top10       = entry.get("ai_top10", [])
     ai_comment  = entry.get("ai_comment", "")
     user_comments = entry.get("user_comments", [])
 
