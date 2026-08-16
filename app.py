@@ -1171,12 +1171,26 @@ from pathlib import Path
 AI_PREDICTIONS_FILE = Path("predictions.json")
 
 def load_daily_ai_predictions():
+    # まずローカルファイルを試す
     try:
-        if not AI_PREDICTIONS_FILE.exists():
-            return {}
-        with open(AI_PREDICTIONS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+        if AI_PREDICTIONS_FILE.exists():
+            with open(AI_PREDICTIONS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
     except Exception:
+        pass
+    # GitHubから直接読み込む
+    try:
+        import urllib.request
+        token = st.secrets.get("GITHUB_TOKEN", "")
+        repo  = st.secrets.get("GITHUB_REPO", "perfume9164-afk/stock-tool")
+        url   = f"https://api.github.com/repos/{repo}/contents/predictions.json"
+        headers = {"Authorization": f"token {token}"} if token else {}
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as res:
+            import base64
+            content = json.loads(res.read())["content"]
+            return json.loads(base64.b64decode(content).decode("utf-8"))
+    except Exception as e:
         return {}
 
 def render_daily_ai_prediction_tab(watchlist):
