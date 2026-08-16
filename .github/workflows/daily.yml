@@ -2,14 +2,9 @@ name: 毎日スクリーニング＋スコア保存
 
 on:
   schedule:
-<<<<<<< HEAD
-    # 毎朝 JST 9:15（UTC 00:15）月〜金：スコア保存
-=======
-    # 毎朝 JST 16:00（UTC 00:15）月〜金に実行
->>>>>>> 7da4dc05e381cb9e689112f0920f4530da0cfbc9
-    - cron: '15 0 * * 1-5'
     # 毎日 JST 16:15（UTC 07:15）月〜金：スクリーニング
     - cron: '15 7 * * 1-5'
+
   workflow_dispatch:
     inputs:
       mode:
@@ -34,14 +29,6 @@ jobs:
       - name: 依存関係インストール
         run: pip install -r requirements.txt
 
-      - name: 朝のスコア保存（9:15実行）
-        if: github.event.schedule == '15 0 * * 1-5' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.mode == 'score' || github.event.inputs.mode == 'both'))
-        run: python daily_update.py
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO: ${{ github.repository }}
-
       - name: 夕方のスクリーニング（16:15実行）
         if: github.event.schedule == '15 7 * * 1-5' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.mode == 'screen' || github.event.inputs.mode == 'both'))
         run: python screener.py
@@ -55,7 +42,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git diff --staged --quiet || git commit -m "auto: daily update $(date +'%Y-%m-%d %H:%M')"
+          git diff --staged --quiet || git commit -m "auto: daily screening $(date +'%Y-%m-%d %H:%M')"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
