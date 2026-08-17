@@ -73,14 +73,53 @@ PREDICTIONS_FILE = "predictions.json"
 SCORE_HISTORY_FILE = "score_history.json"
 
 def load_json(path, default):
-    if os.path.exists(path):
-        with open(path) as f:
-            return json.load(f)
+    """
+    JSONを文字コード違いに強く読み込む。
+    UTF-8 / UTF-8 BOM / CP932 / Shift-JIS に対応。
+    """
+    if not os.path.exists(path):
+        return default
+
+    encodings = [
+        "utf-8-sig",
+        "utf-8",
+        "cp932",
+        "shift_jis",
+    ]
+
+    for encoding in encodings:
+        try:
+            with open(path, "r", encoding=encoding) as f:
+                return json.load(f)
+
+        except UnicodeDecodeError:
+            continue
+
+        except json.JSONDecodeError as e:
+            print(f"[JSON ERROR] {path}")
+            print(f"[ENCODING] {encoding}")
+            print(f"[DETAIL] {e}")
+            return default
+
+        except Exception as e:
+            print(f"[LOAD ERROR] {path}: {e}")
+            return default
+
+    print(f"[ENCODING ERROR] 読み込み失敗: {path}")
     return default
 
+
 def save_json(path, data):
-    with open(path, "w") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    """
+    JSONはUTF-8で統一して保存。
+    """
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(
+            data,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
 
 
 def safe_float(val):
