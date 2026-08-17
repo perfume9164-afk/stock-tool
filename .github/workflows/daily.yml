@@ -21,8 +21,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: リポジトリをチェックアウト
-        uses: actions/checkout@v4
+      - - name: リポジトリをチェックアウト
+          uses: actions/checkout@v4
+          with:
+          fetch-depth: 0
 
       - name: Python セットアップ
         uses: actions/setup-python@v5
@@ -41,12 +43,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ github.repository }}
 
-      - name: 結果をコミット・プッシュ
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git diff --staged --quiet || git commit -m "auto: daily screening $(date +'%Y-%m-%d %H:%M')"
-          git push
+      - - name: 結果をコミット・プッシュ
+  run: |
+    git config --local user.email "action@github.com"
+    git config --local user.name "GitHub Action"
+
+    git add -A
+
+    if git diff --staged --quiet; then
+      echo "変更なし"
+      exit 0
+    fi
+
+    git commit -m "auto: daily update $(date +'%Y-%m-%d %H:%M')"
+
+    git fetch origin main
+    git rebase origin/main
+
+    git push origin HEAD:main
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
