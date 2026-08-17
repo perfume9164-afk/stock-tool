@@ -2,15 +2,19 @@ name: 毎日スクリーニング＋スコア保存
 
 on:
   schedule:
+    # 毎朝 JST 9:15（UTC 00:15）月〜金：スコア保存
+    - cron: '15 0 * * 1-5'
     # 毎日 JST 16:15（UTC 07:15）月〜金：スクリーニング
     - cron: '15 7 * * 1-5'
-
   workflow_dispatch:
     inputs:
       mode:
         description: '実行モード (score / screen / both)'
         required: false
         default: 'both'
+
+permissions:
+  contents: write
 
 jobs:
   run:
