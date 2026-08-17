@@ -1,6 +1,6 @@
 {
-  "date": "2026-08-17",
-  "generated_at": "2026-08-17 18:26 JST",
+  "date": "2026-08-18",
+  "generated_at": "2026-08-18 06:47 JST",
   "universe_size": 300,
   "top50": [
     {
@@ -55,6 +55,23 @@
       "div_yield": 3.31
     },
     {
+      "volume_rank": 44,
+      "ticker": "8725.T",
+      "name": "MS&AD Insurance Group Holdings, Inc.",
+      "price": 4925.0,
+      "volume": 6427300,
+      "volume_ratio": 1.76,
+      "funda_score": 39,
+      "chart_score": 34,
+      "total_score": 73,
+      "rsi": 41.2,
+      "range_pos": 93.4,
+      "per": 14.364045,
+      "pbr": 1.0640625,
+      "roe": 16.1,
+      "div_yield": 2.89
+    },
+    {
       "volume_rank": 48,
       "ticker": "4568.T",
       "name": "Daiichi Sankyo Company, Limited",
@@ -104,23 +121,6 @@
       "pbr": 1.8093665,
       "roe": 9.5,
       "div_yield": 2.6
-    },
-    {
-      "volume_rank": 44,
-      "ticker": "8725.T",
-      "name": "MS&AD Insurance Group Holdings, Inc.",
-      "price": 4925.0,
-      "volume": 6427300,
-      "volume_ratio": 1.76,
-      "funda_score": 37,
-      "chart_score": 34,
-      "total_score": 71,
-      "rsi": 41.2,
-      "range_pos": 93.4,
-      "per": 14.364045,
-      "pbr": 1.0640625,
-      "roe": 11.0,
-      "div_yield": 2.89
     },
     {
       "volume_rank": 45,
@@ -305,7 +305,7 @@
       "rsi": 59.1,
       "range_pos": 37.9,
       "per": 19.807909,
-      "pbr": 4.894105,
+      "pbr": 4.582437,
       "roe": 33.4,
       "div_yield": 76.0
     },
@@ -397,7 +397,7 @@
     {
       "volume_rank": 3,
       "ticker": "3103.T",
-      "name": "UNITIKA LTD",
+      "name": "Unitika Ltd.",
       "price": 1665.0,
       "volume": 56270200,
       "volume_ratio": 2.14,
@@ -916,6 +916,26 @@
       "verdict": "買い"
     },
     {
+      "volume_rank": 44,
+      "ticker": "8725.T",
+      "name": "MS&AD Insurance Group Holdings, Inc.",
+      "price": 4925.0,
+      "volume": 6427300,
+      "volume_ratio": 1.76,
+      "funda_score": 39,
+      "chart_score": 34,
+      "total_score": 73,
+      "rsi": 41.2,
+      "range_pos": 93.4,
+      "per": 14.364045,
+      "pbr": 1.0640625,
+      "roe": 16.1,
+      "div_yield": 2.89,
+      "ai_rank": 4,
+      "reason": "総合スコア上位のフォールバック",
+      "verdict": "買い"
+    },
+    {
       "volume_rank": 48,
       "ticker": "4568.T",
       "name": "Daiichi Sankyo Company, Limited",
@@ -931,7 +951,7 @@
       "pbr": 2.8438249,
       "roe": 14.8,
       "div_yield": 3.66,
-      "ai_rank": 4,
+      "ai_rank": 5,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
     },
@@ -951,7 +971,7 @@
       "pbr": 1.3339391,
       "roe": 10.7,
       "div_yield": 3.32,
-      "ai_rank": 5,
+      "ai_rank": 6,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
     },
@@ -971,26 +991,6 @@
       "pbr": 1.8093665,
       "roe": 9.5,
       "div_yield": 2.6,
-      "ai_rank": 6,
-      "reason": "総合スコア上位のフォールバック",
-      "verdict": "買い"
-    },
-    {
-      "volume_rank": 44,
-      "ticker": "8725.T",
-      "name": "MS&AD Insurance Group Holdings, Inc.",
-      "price": 4925.0,
-      "volume": 6427300,
-      "volume_ratio": 1.76,
-      "funda_score": 37,
-      "chart_score": 34,
-      "total_score": 71,
-      "rsi": 41.2,
-      "range_pos": 93.4,
-      "per": 14.364045,
-      "pbr": 1.0640625,
-      "roe": 11.0,
-      "div_yield": 2.89,
       "ai_rank": 7,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
