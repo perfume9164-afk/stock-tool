@@ -296,7 +296,10 @@ def call_gemini(prompt, api_key):
             url  = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             body = _json.dumps({
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2048}
+                "generationConfig": {
+    "temperature": 0.5,
+    "maxOutputTokens": 8192
+}
             }).encode("utf-8")
             req = urllib.request.Request(url, data=body,
                 headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")
