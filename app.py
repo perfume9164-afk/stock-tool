@@ -305,8 +305,134 @@ def save_json(path, data):
             indent=2
         )
 
-def load_watchlist():  return load_json(WATCHLIST_FILE, DEFAULT_WATCHLIST)
-def save_watchlist(d): save_json(WATCHLIST_FILE, d)
+def load_watchlist():
+    """
+    GitHub上のwatchlist.jsonを優先して読み込む。
+    GitHub取得に失敗した場合のみローカルを使用。
+    """
+    # まずローカル
+    try:
+        if os.path.exists(WATCHLIST_FILE):
+            data = load_json(WATCHLIST_FILE, {})
+            if data:
+                return data
+    except Exception:
+        pass
+
+    # GitHubから取得
+    try:
+        import urllib.request
+        import base64
+
+        token = st.secrets.get("GITHUB_TOKEN", "")
+        repo = st.secrets.get(
+            "GITHUB_REPO",
+            "perfume9164-afk/stock-tool"
+        )
+
+        url = f"https://api.github.com/repos/{repo}/contents/watchlist.json"
+
+        headers = {
+            "Accept": "application/vnd.github+json"
+        }
+
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
+        req = urllib.request.Request(
+            url,
+            headers=headers
+        )
+
+        with urllib.request.urlopen(req, timeout=10) as res:
+            obj = json.loads(res.read())
+
+        content = base64.b64decode(
+            obj["content"]
+        ).decode("utf-8")
+
+        data = json.loads(content)
+
+        # ローカルにも保存
+        save_json(WATCHLIST_FILE, data)
+
+        return data
+
+    except Exception as e:
+        print(f"[GitHub watchlist read error] {e}")
+        return DEFAULT_WATCHLIST.copy()
+
+
+def save_watchlist(d):
+    """
+    watchlist.jsonをローカル＋GitHubへ保存。
+    """
+    # ローカル保存
+    save_json(WATCHLIST_FILE, d)
+
+    try:
+        import urllib.request
+        import base64
+
+        token = st.secrets.get("GITHUB_TOKEN", "")
+        repo = st.secrets.get(
+            "GITHUB_REPO",
+            "perfume9164-afk/stock-tool"
+        )
+
+        if not token:
+            print("[WARN] GITHUB_TOKENがありません")
+            return
+
+        url = f"https://api.github.com/repos/{repo}/contents/watchlist.json"
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json",
+        }
+
+        # 現在のファイル情報を取得してSHAを取得
+        req = urllib.request.Request(
+            url,
+            headers=headers
+        )
+
+        with urllib.request.urlopen(req, timeout=10) as res:
+            current = json.loads(res.read())
+
+        sha = current.get("sha")
+
+        content = json.dumps(
+            d,
+            ensure_ascii=False,
+            indent=2
+        )
+
+        encoded = base64.b64encode(
+            content.encode("utf-8")
+        ).decode("ascii")
+
+        payload = {
+            "message": "auto: update watchlist",
+            "content": encoded,
+            "sha": sha,
+        }
+
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="PUT"
+        )
+
+        with urllib.request.urlopen(req, timeout=15) as res:
+            result = json.loads(res.read())
+
+        print("[OK] watchlist.jsonをGitHubへ保存しました")
+
+    except Exception as e:
+        print(f"[GitHub watchlist write error] {e}")
 def load_history():    return load_json(SCORE_HISTORY_FILE, {})
 def save_history(d):   save_json(SCORE_HISTORY_FILE, d)
 def load_journal():    return load_json(JOURNAL_FILE, [])
@@ -1171,140 +1297,483 @@ from pathlib import Path
 AI_PREDICTIONS_FILE = Path("data/ai_predictions.json")
 
 def load_daily_ai_predictions():
-    # まずローカルファイルを試す
-    try:
-        if AI_PREDICTIONS_FILE.exists():
-            with open(AI_PREDICTIONS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception:
-        pass
+    """GitHub上の最新 predictions.json を直接取得する"""
 
-    # GitHubから直接読み込む
     try:
         import urllib.request
-        import base64
+        import time
 
-        token = st.secrets.get("GITHUB_TOKEN", "")
-        repo = st.secrets.get("GITHUB_REPO", "perfume9164-afk/stock-tool")
+        repo = "perfume9164-afk/stock-tool"
 
-        url = f"https://api.github.com/repos/{repo}/contents/data/ai_predictions.json"
+        # GitHubのrawファイルを直接取得
+        url = (
+            f"https://raw.githubusercontent.com/"
+            f"{repo}/main/predictions.json"
+            f"?t={int(time.time())}"
+        )
 
-        headers = {}
-        if token:
-            headers["Authorization"] = f"token {token}"
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "stock-tool-streamlit"
+            }
+        )
 
-        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=15) as res:
+            text = res.read().decode("utf-8-sig")
 
-        with urllib.request.urlopen(req, timeout=10) as res:
-            result = json.loads(res.read())
-            content = result["content"]
-
-            return json.loads(
-                base64.b64decode(content).decode("utf-8")
-            )
+        return json.loads(text)
 
     except Exception as e:
-        print(f"AI予想読み込みエラー: {e}")
+        st.error(f"AI予想データの読み込みに失敗しました: {e}")
         return {}
 
 def render_daily_ai_prediction_tab(watchlist):
+    """毎日の出来高スキャン＋AI予想を表示"""
+
     data = load_daily_ai_predictions()
-    st.markdown('<div class="section-head">📡 DAILY VOLUME SCAN & AI予想</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        '<div class="section-head">📡 DAILY VOLUME SCAN & AI予想</div>',
+        unsafe_allow_html=True
+    )
+
     st.markdown("""
-    <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:9px;padding:.8rem 1rem;margin-bottom:.8rem;color:#9db7cf;font-size:.78rem;line-height:1.7;">
-    <b style="color:#e8f4ff;">毎日自動スキャン：</b> 主要プライム銘柄 約300社 → 当日出来高TOP50 → ファンダ＋チャート採点 → GeminiでTOP10を選定。
+    <div style="
+        background:#0d1f3c;
+        border:1px solid #1e3a5f;
+        border-radius:9px;
+        padding:.8rem 1rem;
+        margin-bottom:.8rem;
+        color:#9db7cf;
+        font-size:.78rem;
+        line-height:1.7;
+    ">
+    <b style="color:#e8f4ff;">毎日自動スキャン：</b>
+    主要プライム銘柄 約300社 → 当日出来高TOP50 → ファンダ＋チャート採点 → GeminiでTOP10を選定。
     </div>
     """, unsafe_allow_html=True)
 
-    if not data or (isinstance(data, list) and len(data) == 0):
-        st.info("まだ自動スキャン結果がありません。\n\nGitHub Actionsを手動実行するか、PowerShellで `python screener.py` を実行してください。")
+    # ---------------------------------------------------------
+    # データがない場合
+    # ---------------------------------------------------------
+    if not data:
+        st.info(
+            "まだ自動スキャン結果がありません。\n\n"
+            "GitHub Actionsを手動実行するか、PowerShellで "
+            "`python screener.py` を実行してください。"
+        )
         st.divider()
         render_ai_tab(watchlist)
         return
 
-    # リスト形式の場合は最新を取得
+    # ---------------------------------------------------------
+    # predictions.json の形式に対応
+    # ---------------------------------------------------------
     if isinstance(data, list):
+        if len(data) == 0:
+            st.info("AI予想データがありません。")
+            return
         entry = data[0]
     else:
         entry = data
 
-    date_str    = entry.get("date", "—")
-    generated   = entry.get("generated_at", "—")[:16] if entry.get("generated_at") else "—"
-    top10       = entry.get("ai_top10", [])
-    ai_comment  = entry.get("ai_comment", "")
+    date_str = entry.get("date", "—")
+    generated = entry.get("generated_at", "—")
+
+    if generated and len(generated) >= 16:
+        generated = generated[:16]
+
+    top10 = entry.get("ai_top10", [])
+    ai_comment = entry.get("ai_comment", "")
     user_comments = entry.get("user_comments", [])
 
-    st.markdown(f"**{date_str} 引け後スキャン** ｜ 生成: {generated}")
+    # ---------------------------------------------------------
+    # 更新日時
+    # ---------------------------------------------------------
+    st.markdown(
+        f"**{date_str} 引け後スキャン** ｜ 生成: {generated}"
+    )
 
+    # =========================================================
+    # 本日のTOP10
+    # =========================================================
     if top10:
-        st.markdown('<div class="section-head" style="margin-top:.8rem;">🎯 本日の注目10銘柄</div>', unsafe_allow_html=True)
-        cols = st.columns(2)
-        for i, s in enumerate(top10):
-            ch    = s.get("chart", {})
-            score = s.get("total", 0)
-            chg   = s.get("chg_pct", 0)
-            color = "#00e5a0" if score >= 80 else "#4fc3f7" if score >= 65 else "#ffd54f" if score >= 50 else "#ef5350"
+
+        st.markdown(
+            '<div class="section-head" style="margin-top:.8rem;">'
+            '🎯 本日の注目10銘柄'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        for i, s in enumerate(top10, 1):
+
+            ticker = s.get("ticker", "")
+            name = s.get("name", "")
+            price = safe_float(s.get("price")) or 0
+            score = safe_float(s.get("total_score", s.get("total", 0))) or 0
+            chg = safe_float(s.get("chg_pct")) or 0
+
+            # 現在のpredictions.jsonでは直接入っている
+            rsi = s.get("rsi", "—")
+            range_pos = s.get("range_pos", "—")
+            volume = s.get("volume", 0)
+
+            reason = s.get("reason", "")
+            verdict_text = s.get("verdict", "")
+
+            # スコア色
+            if score >= 80:
+                score_color = "#00e5a0"
+            elif score >= 65:
+                score_color = "#4fc3f7"
+            elif score >= 50:
+                score_color = "#ffd54f"
+            else:
+                score_color = "#ef5350"
+
+            # 前日比色
             chg_color = "#00e5a0" if chg >= 0 else "#ef5350"
-            with cols[i % 2]:
-                st.markdown(f"""
-                <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:8px;padding:.7rem .9rem;margin-bottom:.5rem;">
-                  <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                      <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:#4a7fa5;">#{i+1} {s.get('ticker','')}</div>
-                      <div style="font-size:.9rem;font-weight:700;color:#e8f4ff;">{s.get('name','')}</div>
-                      <div style="font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:#e8f4ff;">¥{s.get('price',0):,.0f} <span style="color:{chg_color};">{'+' if chg>=0 else ''}{chg:.2f}%</span></div>
+            chg_sign = "+" if chg >= 0 else ""
+
+            # -------------------------------------------------
+            # AI予想カード
+            # -------------------------------------------------
+            st.markdown(f"""
+            <div style="
+                background:#0d1f3c;
+                border:1px solid #1e3a5f;
+                border-radius:10px;
+                padding:1rem 1.1rem;
+                margin-bottom:.7rem;
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:flex-start;
+                    gap:1rem;
+                ">
+
+                    <div style="flex:1;">
+
+                        <div style="
+                            font-family:'IBM Plex Mono',monospace;
+                            font-size:.65rem;
+                            color:#4a7fa5;
+                        ">
+                            AI RANK #{i}　{ticker}
+                        </div>
+
+                        <div style="
+                            font-size:1.05rem;
+                            font-weight:700;
+                            color:#e8f4ff;
+                            margin-top:.15rem;
+                        ">
+                            {name}
+                        </div>
+
+                        <div style="
+                            font-family:'IBM Plex Mono',monospace;
+                            font-size:.9rem;
+                            color:#e8f4ff;
+                            margin-top:.2rem;
+                        ">
+                            ¥{price:,.0f}
+
+                            <span style="color:{chg_color};">
+                                {chg_sign}{chg:.2f}%
+                            </span>
+                        </div>
+
                     </div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:1.8rem;font-weight:600;color:{color};">{score}<small style="color:#4a7fa5;font-size:.6rem;">/100</small></div>
-                  </div>
-                  <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem;">
-                    <span style="background:#0a0f1e;border:1px solid #1e3a5f;border-radius:3px;padding:.1rem .4rem;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#7fb3d3;">出来高 {s.get('volume',0):,}</span>
-                    <span style="background:#0a0f1e;border:1px solid #1e3a5f;border-radius:3px;padding:.1rem .4rem;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#7fb3d3;">RSI {ch.get('rsi','—')}</span>
-                    <span style="background:#0a0f1e;border:1px solid #1e3a5f;border-radius:3px;padding:.1rem .4rem;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#7fb3d3;">52週 {ch.get('range_pos','—')}%</span>
-                  </div>
+
+                    <div style="
+                        text-align:right;
+                        min-width:90px;
+                    ">
+
+                        <div style="
+                            font-family:'IBM Plex Mono',monospace;
+                            font-size:2rem;
+                            font-weight:700;
+                            color:{score_color};
+                        ">
+                            {score:.0f}
+                            <span style="
+                                font-size:.65rem;
+                                color:#4a7fa5;
+                            ">
+                                /100
+                            </span>
+                        </div>
+
+                        <div style="
+                            margin-top:.2rem;
+                            font-weight:700;
+                            color:{score_color};
+                            font-size:.8rem;
+                        ">
+                            {verdict_text}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div style="
+                    display:flex;
+                    gap:.4rem;
+                    flex-wrap:wrap;
+                    margin-top:.7rem;
+                ">
+
+                    <span style="
+                        background:#0a0f1e;
+                        border:1px solid #1e3a5f;
+                        border-radius:4px;
+                        padding:.2rem .5rem;
+                        font-family:'IBM Plex Mono',monospace;
+                        font-size:.65rem;
+                        color:#7fb3d3;
+                    ">
+                        出来高 {volume:,}
+                    </span>
+
+                    <span style="
+                        background:#0a0f1e;
+                        border:1px solid #1e3a5f;
+                        border-radius:4px;
+                        padding:.2rem .5rem;
+                        font-family:'IBM Plex Mono',monospace;
+                        font-size:.65rem;
+                        color:#7fb3d3;
+                    ">
+                        RSI {rsi}
+                    </span>
+
+                    <span style="
+                        background:#0a0f1e;
+                        border:1px solid #1e3a5f;
+                        border-radius:4px;
+                        padding:.2rem .5rem;
+                        font-family:'IBM Plex Mono',monospace;
+                        font-size:.65rem;
+                        color:#7fb3d3;
+                    ">
+                        52週 {range_pos}%
+                    </span>
+
+                </div>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+            # -------------------------------------------------
+            # AIの個別予想
+            # -------------------------------------------------
+            if reason:
+
+                st.markdown(f"""
+                <div style="
+                    background:#060d1a;
+                    border-left:3px solid {score_color};
+                    padding:.7rem 1rem;
+                    margin:-.45rem 0 .8rem 0;
+                    color:#d9e8f5;
+                    font-size:.82rem;
+                    line-height:1.7;
+                ">
+                    <b style="color:{score_color};">
+                        🤖 AI判断
+                    </b>
+                    <br>
+                    {reason}
                 </div>
                 """, unsafe_allow_html=True)
 
+    # =========================================================
+    # Geminiによる市場コメント
+    # =========================================================
     if ai_comment:
         st.divider()
-        st.markdown('<div class="section-head">🤖 AI トレード予想</div>', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div style="background:#060d1a;border:1px solid #2d6a9f;border-radius:10px;padding:1.2rem 1.4rem;line-height:1.9;color:#e8f4ff;font-size:.88rem;white-space:pre-wrap;">{ai_comment}</div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-head">🤖 AI トレード予想・市場コメント</div>',
+            unsafe_allow_html=True
+        )
 
-    # コメント入力
+        st.markdown(
+            f"""
+            <div style="
+                background:#060d1a;
+                border:1px solid #2d6a9f;
+                border-radius:10px;
+                padding:1.2rem 1.4rem;
+                line-height:1.9;
+                color:#e8f4ff;
+                font-size:.88rem;
+                white-space:pre-wrap;
+                overflow-wrap:anywhere;
+            ">{ai_comment}</div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # =========================================================
+    # ユーザーコメント
+    # =========================================================
     st.divider()
-    st.markdown('<div class="section-head">💬 あなたのコメントを追加</div>', unsafe_allow_html=True)
-    with st.expander("コメントを追加する", expanded=True):
-        comment_ticker = st.selectbox("対象銘柄", ["全体へのコメント"] + [f"{s.get('ticker','')} {s.get('name','')}" for s in top10], key="pred_ticker")
-        comment_text   = st.text_area("コメント・見解", height=100, key="pred_comment")
-        agree          = st.radio("AI予想との一致度", ["同意", "部分同意", "異論あり", "コメントのみ"], horizontal=True, key="pred_agree")
-        if st.button("💾 コメントを保存", type="primary"):
+
+    st.markdown(
+        '<div class="section-head">💬 あなたのコメントを追加</div>',
+        unsafe_allow_html=True
+    )
+
+    with st.expander("コメントを追加する", expanded=False):
+
+        comment_options = ["全体へのコメント"]
+
+        for s in top10:
+            comment_options.append(
+                f"{s.get('ticker','')} {s.get('name','')}"
+            )
+
+        comment_ticker = st.selectbox(
+            "対象銘柄",
+            comment_options,
+            key="pred_ticker"
+        )
+
+        comment_text = st.text_area(
+            "コメント・見解",
+            height=100,
+            key="pred_comment"
+        )
+
+        agree = st.radio(
+            "AI予想との一致度",
+            ["同意", "部分同意", "異論あり", "コメントのみ"],
+            horizontal=True,
+            key="pred_agree"
+        )
+
+        if st.button(
+            "💾 コメントを保存",
+            type="primary",
+            key="save_prediction_comment"
+        ):
+
             if comment_text:
-                predictions = load_json("predictions.json", [])
-                if isinstance(predictions, list) and predictions:
-                    predictions[0].setdefault("user_comments", []).insert(0, {
-                        "id": datetime.now().strftime("%Y%m%d%H%M%S"),
-                        "timestamp": datetime.now().isoformat(),
-                        "ticker": comment_ticker,
-                        "comment": comment_text,
-                        "agree": agree,
-                    })
-                    save_json("predictions.json", predictions)
-                    st.success("コメントを保存しました ✅")
+
+                predictions = load_json(
+                    "predictions.json",
+                    []
+                )
+
+                # dict形式にも対応
+                if isinstance(predictions, dict):
+                    predictions = [predictions]
+
+                if predictions:
+
+                    predictions[0].setdefault(
+                        "user_comments",
+                        []
+                    )
+
+                    predictions[0]["user_comments"].insert(
+                        0,
+                        {
+                            "id": datetime.now().strftime(
+                                "%Y%m%d%H%M%S"
+                            ),
+                            "timestamp": datetime.now().isoformat(),
+                            "ticker": comment_ticker,
+                            "comment": comment_text,
+                            "agree": agree,
+                        }
+                    )
+
+                    save_json(
+                        "predictions.json",
+                        predictions
+                    )
+
+                    st.success(
+                        "コメントを保存しました ✅"
+                    )
+
                     st.rerun()
 
-    # 過去コメント表示
+    # =========================================================
+    # 過去コメント
+    # =========================================================
     if user_comments:
-        st.markdown(f'<div class="section-head" style="margin-top:1rem;">過去のコメント（{len(user_comments)}件）</div>', unsafe_allow_html=True)
+
+        st.markdown(
+            f'<div class="section-head" style="margin-top:1rem;">'
+            f'過去のコメント（{len(user_comments)}件）'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
         for c in user_comments:
-            agree_color = "#00e5a0" if c.get("agree") == "同意" else "#ffd54f" if c.get("agree") == "部分同意" else "#ef5350" if c.get("agree") == "異論あり" else "#7fb3d3"
+
+            agree = c.get("agree", "")
+
+            if agree == "同意":
+                agree_color = "#00e5a0"
+            elif agree == "部分同意":
+                agree_color = "#ffd54f"
+            elif agree == "異論あり":
+                agree_color = "#ef5350"
+            else:
+                agree_color = "#7fb3d3"
+
             st.markdown(f"""
-            <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:8px;padding:.7rem .9rem;margin-bottom:.4rem;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
-                <span style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#4a7fa5;">{c.get('timestamp','')[:16]} {c.get('ticker','')}</span>
-                <span style="font-size:.65rem;font-weight:700;color:{agree_color};">{c.get('agree','')}</span>
-              </div>
-              <div style="font-size:.85rem;color:#e8f4ff;line-height:1.6;">{c.get('comment','')}</div>
+            <div style="
+                background:#0d1f3c;
+                border:1px solid #1e3a5f;
+                border-radius:8px;
+                padding:.7rem .9rem;
+                margin-bottom:.4rem;
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    margin-bottom:.3rem;
+                ">
+
+                    <span style="
+                        font-family:'IBM Plex Mono',monospace;
+                        font-size:.65rem;
+                        color:#4a7fa5;
+                    ">
+                        {c.get('timestamp','')[:16]}
+                        {c.get('ticker','')}
+                    </span>
+
+                    <span style="
+                        font-size:.65rem;
+                        font-weight:700;
+                        color:{agree_color};
+                    ">
+                        {agree}
+                    </span>
+
+                </div>
+
+                <div style="
+                    font-size:.85rem;
+                    color:#e8f4ff;
+                    line-height:1.6;
+                ">
+                    {c.get('comment','')}
+                </div>
+
             </div>
             """, unsafe_allow_html=True)
 
@@ -1514,18 +1983,28 @@ def main():
     st.markdown(f"""
     <div class="main-header">
       <h1>📈 日本株 AI スコアボード</h1>
-      <div class="subtitle">ファンダメンタルズ＋チャート スコアリングエンジン &nbsp;|&nbsp; {datetime.now().strftime('%Y-%m-%d %H:%M')} 更新</div>
+      <div class="subtitle">ファンダメンタルズ＋チャート スコアリングエンジン</div>
     </div>
     """, unsafe_allow_html=True)
 
     watchlist = load_watchlist()
-    # 既存watchlistに保存された英語名も日本語名へ更新
+
+    # 既存watchlistの会社名を日本語へ更新
+    changed = False
+
     for _ticker in list(watchlist.keys()):
         _jp_name = get_company_name(_ticker)
-        if _jp_name and _jp_name != _ticker:
+
+        if _jp_name and _jp_name != watchlist[_ticker]:
             watchlist[_ticker] = _jp_name
-    save_watchlist(watchlist)
-    history   = load_history()
+            changed = True
+
+    if changed:
+        save_watchlist(watchlist)
+
+    history = load_history()
+
+    # 以下、今までのmain処理
 
     with st.sidebar:
         render_watchlist_manager(watchlist)
