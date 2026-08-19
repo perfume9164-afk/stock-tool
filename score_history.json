@@ -39,6 +39,30 @@
       "chart": 38,
       "price": 987.5,
       "note": ""
+    },
+    {
+      "date": "2026-08-17",
+      "total": 70,
+      "funda": 31,
+      "chart": 39,
+      "price": 972.2,
+      "note": ""
+    },
+    {
+      "date": "2026-08-18",
+      "total": 70,
+      "funda": 31,
+      "chart": 39,
+      "price": 965.2,
+      "note": ""
+    },
+    {
+      "date": "2026-08-19",
+      "total": 58,
+      "funda": 31,
+      "chart": 27,
+      "price": 965.2,
+      "note": ""
     }
   ],
   "5243.T": [
@@ -148,6 +172,30 @@
       "funda": 30,
       "chart": 30,
       "price": 3841.0,
+      "note": ""
+    },
+    {
+      "date": "2026-08-17",
+      "total": 58,
+      "funda": 30,
+      "chart": 28,
+      "price": 3664.0,
+      "note": ""
+    },
+    {
+      "date": "2026-08-18",
+      "total": 63,
+      "funda": 30,
+      "chart": 33,
+      "price": 3601.0,
+      "note": ""
+    },
+    {
+      "date": "2026-08-19",
+      "total": 51,
+      "funda": 28,
+      "chart": 23,
+      "price": 3601.0,
       "note": ""
     }
   ],
@@ -272,6 +320,32 @@
       "funda": 36,
       "chart": 37,
       "price": 3721.0,
+      "note": ""
+    }
+  ],
+  "6954.T": [
+    {
+      "date": "2026-08-17",
+      "total": 58,
+      "funda": 27,
+      "chart": 31,
+      "price": 6523.0,
+      "note": ""
+    },
+    {
+      "date": "2026-08-18",
+      "total": 52,
+      "funda": 27,
+      "chart": 25,
+      "price": 6285.0,
+      "note": ""
+    },
+    {
+      "date": "2026-08-19",
+      "total": 52,
+      "funda": 27,
+      "chart": 25,
+      "price": 6285.0,
       "note": ""
     }
   ]

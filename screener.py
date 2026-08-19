@@ -289,25 +289,51 @@ def score_ticker(ticker):
 def call_gemini(prompt, api_key):
     """Gemini APIを呼び出す"""
     import urllib.request, urllib.error
-    models = ["gemini-3-flash-preview", "gemini-3.1-flash-lite", "gemini-flash-latest"]
+
+    models = [
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite",
+        "gemini-flash-latest"
+    ]
+
     for model in models:
         try:
             import json as _json
-            url  = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+
             body = _json.dumps({
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
-    "temperature": 0.5,
-    "maxOutputTokens": 8192
-}
+                    "temperature": 0.7,
+                    "maxOutputTokens": 8192
+                }
             }).encode("utf-8")
-            req = urllib.request.Request(url, data=body,
-                headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")
+
+            req = urllib.request.Request(
+                url,
+                data=body,
+                headers={
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                method="POST"
+            )
+
             with urllib.request.urlopen(req, timeout=30) as res:
                 data = _json.loads(res.read().decode("utf-8"))
-                return data["candidates"][0]["content"]["parts"][0]["text"]
-        except:
+
+            candidate = data["candidates"][0]
+
+            # Geminiがなぜ回答を終了したか確認
+            finish_reason = candidate.get("finishReason", "")
+            print(f"Gemini finishReason: {finish_reason}")
+
+            return candidate["content"]["parts"][0]["text"]
+
+        except Exception as e:
+            print(f"Gemini {model} エラー: {e}")
             continue
+
     return "AI予想の生成に失敗しました"
 
 
