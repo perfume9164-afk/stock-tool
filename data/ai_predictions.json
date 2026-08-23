@@ -1,6 +1,6 @@
 {
-  "date": "2026-08-21",
-  "generated_at": "2026-08-21 18:19 JST",
+  "date": "2026-08-24",
+  "generated_at": "2026-08-24 06:34 JST",
   "universe_size": 300,
   "top50": [
     {
@@ -15,10 +15,10 @@
       "total_score": 80,
       "rsi": 32.1,
       "range_pos": 80.9,
-      "per": 14.750516,
+      "per": 14.749299,
       "pbr": 1.4085084,
       "roe": 13.6,
-      "div_yield": 4.07
+      "div_yield": 4.03
     },
     {
       "volume_rank": 33,
@@ -32,10 +32,10 @@
       "total_score": 78,
       "rsi": 50.5,
       "range_pos": 70.0,
-      "per": 13.860252,
+      "per": 13.868917,
       "pbr": 0.94661206,
       "roe": 19.5,
-      "div_yield": 2.61
+      "div_yield": 2.55
     },
     {
       "volume_rank": 38,
@@ -49,10 +49,10 @@
       "total_score": 75,
       "rsi": 51.4,
       "range_pos": 50.8,
-      "per": 9.238438,
+      "per": 9.242091,
       "pbr": 1.1466296,
       "roe": 15.3,
-      "div_yield": 2.49
+      "div_yield": 2.47
     },
     {
       "volume_rank": 47,
@@ -66,10 +66,10 @@
       "total_score": 75,
       "rsi": 52.2,
       "range_pos": 40.9,
-      "per": 15.28005,
+      "per": 15.267557,
       "pbr": 0.7708118,
       "roe": 5.6,
-      "div_yield": 3.71
+      "div_yield": 3.69
     },
     {
       "volume_rank": 50,
@@ -83,10 +83,10 @@
       "total_score": 75,
       "rsi": 60.6,
       "range_pos": 47.5,
-      "per": 5.150462,
+      "per": 5.1493077,
       "pbr": 1.1144934,
       "roe": 23.4,
-      "div_yield": 3.35
+      "div_yield": 3.26
     },
     {
       "volume_rank": 6,
@@ -100,10 +100,10 @@
       "total_score": 71,
       "rsi": 49.9,
       "range_pos": 34.6,
-      "per": 6.021611,
+      "per": 6.0240965,
       "pbr": 1.6429721,
       "roe": 32.0,
-      "div_yield": 20.0
+      "div_yield": 21.0
     },
     {
       "volume_rank": 40,
@@ -117,10 +117,10 @@
       "total_score": 71,
       "rsi": 47.3,
       "range_pos": 40.9,
-      "per": 22.945004,
+      "per": 22.93596,
       "pbr": 2.7642152,
       "roe": 14.2,
-      "div_yield": 83.0
+      "div_yield": 86.0
     },
     {
       "volume_rank": 21,
@@ -134,7 +134,7 @@
       "total_score": 70,
       "rsi": 66.6,
       "range_pos": 34.3,
-      "per": 4.5428185,
+      "per": 4.543404,
       "pbr": 1.4166782,
       "roe": 44.0,
       "div_yield": null
@@ -151,10 +151,10 @@
       "total_score": 70,
       "rsi": 49.9,
       "range_pos": 42.3,
-      "per": 20.286203,
+      "per": 20.284029,
       "pbr": 2.6558235,
       "roe": 13.2,
-      "div_yield": 93.0
+      "div_yield": 92.0
     },
     {
       "volume_rank": 37,
@@ -168,10 +168,10 @@
       "total_score": 70,
       "rsi": 48.6,
       "range_pos": 84.3,
-      "per": 14.4746475,
+      "per": 14.471806,
       "pbr": 1.7143477,
       "roe": 12.5,
-      "div_yield": 1.86
+      "div_yield": 1.85
     },
     {
       "volume_rank": 39,
@@ -188,24 +188,7 @@
       "per": 11.520564,
       "pbr": 1.1700203,
       "roe": 11.2,
-      "div_yield": 3.35
-    },
-    {
-      "volume_rank": 8,
-      "ticker": "4005.T",
-      "name": "Sumitomo Chemical Company, Limited",
-      "price": 559.7999877929688,
-      "volume": 26076700,
-      "volume_ratio": 2.33,
-      "funda_score": 38,
-      "chart_score": 31,
-      "total_score": 69,
-      "rsi": 61.9,
-      "range_pos": 72.0,
-      "per": 15.072698,
-      "pbr": 0.83823603,
-      "roe": 13.2,
-      "div_yield": 3.06
+      "div_yield": 3.32
     },
     {
       "volume_rank": 16,
@@ -219,10 +202,10 @@
       "total_score": 69,
       "rsi": 43.3,
       "range_pos": 23.8,
-      "per": 17.586683,
+      "per": 17.605217,
       "pbr": 4.068035,
       "roe": 33.4,
-      "div_yield": 83.0
+      "div_yield": 86.0
     },
     {
       "volume_rank": 20,
@@ -239,7 +222,7 @@
       "per": 15.872714,
       "pbr": 2.1650245,
       "roe": 14.6,
-      "div_yield": 2.94
+      "div_yield": 2.88
     },
     {
       "volume_rank": 5,
@@ -253,10 +236,27 @@
       "total_score": 68,
       "rsi": 53.4,
       "range_pos": 76.9,
-      "per": 202.89232,
+      "per": 199.81819,
       "pbr": 0.611449,
       "roe": 5.5,
-      "div_yield": 3.62
+      "div_yield": 3.64
+    },
+    {
+      "volume_rank": 8,
+      "ticker": "4005.T",
+      "name": "Sumitomo Chemical Company, Limited",
+      "price": 559.7999877929688,
+      "volume": 26076700,
+      "volume_ratio": 2.33,
+      "funda_score": 37,
+      "chart_score": 31,
+      "total_score": 68,
+      "rsi": 61.9,
+      "range_pos": 72.0,
+      "per": 15.060534,
+      "pbr": 0.83823603,
+      "roe": 13.2,
+      "div_yield": 2.86
     },
     {
       "volume_rank": 11,
@@ -270,10 +270,10 @@
       "total_score": 68,
       "rsi": 63.9,
       "range_pos": 57.8,
-      "per": 37.00688,
+      "per": 37.035603,
       "pbr": 6.146693,
       "roe": 22.6,
-      "div_yield": 57.0
+      "div_yield": 58.0
     },
     {
       "volume_rank": 35,
@@ -287,10 +287,10 @@
       "total_score": 68,
       "rsi": 56.2,
       "range_pos": 76.7,
-      "per": 13.702694,
+      "per": 13.716992,
       "pbr": 1.710281,
       "roe": 13.6,
-      "div_yield": 2.35
+      "div_yield": 2.34
     },
     {
       "volume_rank": 7,
@@ -304,10 +304,10 @@
       "total_score": 67,
       "rsi": 45.9,
       "range_pos": 82.6,
-      "per": 16.520674,
+      "per": 16.529238,
       "pbr": 1.7394512,
       "roe": 9.5,
-      "div_yield": 2.77
+      "div_yield": 2.74
     },
     {
       "volume_rank": 14,
@@ -324,7 +324,7 @@
       "per": 7.6838784,
       "pbr": 0.55207485,
       "roe": -0.8,
-      "div_yield": 4.02
+      "div_yield": 3.99
     },
     {
       "volume_rank": 17,
@@ -355,10 +355,10 @@
       "total_score": 67,
       "rsi": 43.3,
       "range_pos": 81.9,
-      "per": 16.044106,
+      "per": 16.051514,
       "pbr": 1.5585074,
       "roe": 8.6,
-      "div_yield": 2.06
+      "div_yield": 2.04
     },
     {
       "volume_rank": 44,
@@ -372,10 +372,10 @@
       "total_score": 67,
       "rsi": 84.8,
       "range_pos": 100.0,
-      "per": 11.741172,
+      "per": 11.737005,
       "pbr": 0.83955306,
       "roe": 7.9,
-      "div_yield": 2.95
+      "div_yield": 2.82
     },
     {
       "volume_rank": 15,
@@ -389,10 +389,10 @@
       "total_score": 66,
       "rsi": 49.8,
       "range_pos": 47.9,
-      "per": 18.388622,
+      "per": 18.382414,
       "pbr": 2.3972938,
       "roe": 15.8,
-      "div_yield": 1.76
+      "div_yield": 1.79
     },
     {
       "volume_rank": 41,
@@ -406,7 +406,7 @@
       "total_score": 66,
       "rsi": 61.3,
       "range_pos": 93.1,
-      "per": 69.538605,
+      "per": 69.93007,
       "pbr": 24.927439,
       "roe": 56.9,
       "div_yield": 17.0
@@ -426,7 +426,7 @@
       "per": 13.172087,
       "pbr": 1.3719337,
       "roe": 10.7,
-      "div_yield": 3.35
+      "div_yield": 3.25
     },
     {
       "volume_rank": 9,
@@ -440,10 +440,10 @@
       "total_score": 65,
       "rsi": 55.6,
       "range_pos": 35.5,
-      "per": 8.913935,
+      "per": 8.912666,
       "pbr": 0.99409765,
       "roe": 12.4,
-      "div_yield": 3.26
+      "div_yield": 3.19
     },
     {
       "volume_rank": 24,
@@ -457,10 +457,10 @@
       "total_score": 65,
       "rsi": 81.6,
       "range_pos": 100.0,
-      "per": 16.180384,
+      "per": 16.181154,
       "pbr": 1.1862892,
       "roe": 7.6,
-      "div_yield": 3.78
+      "div_yield": 3.52
     },
     {
       "volume_rank": 42,
@@ -474,10 +474,10 @@
       "total_score": 65,
       "rsi": 51.0,
       "range_pos": 60.8,
-      "per": 22.83836,
+      "per": 22.830746,
       "pbr": 1.8223723,
       "roe": 10.1,
-      "div_yield": 2.66
+      "div_yield": 2.61
     },
     {
       "volume_rank": 30,
@@ -491,10 +491,10 @@
       "total_score": 64,
       "rsi": 62.6,
       "range_pos": 88.9,
-      "per": 20.887133,
+      "per": 20.87613,
       "pbr": 1.7727219,
       "roe": 9.2,
-      "div_yield": 1.58
+      "div_yield": 1.56
     },
     {
       "volume_rank": 4,
@@ -525,10 +525,10 @@
       "total_score": 62,
       "rsi": 45.9,
       "range_pos": 47.7,
-      "per": 55.602604,
+      "per": 55.554684,
       "pbr": 4.678638,
       "roe": 10.1,
-      "div_yield": 97.0
+      "div_yield": 99.0
     },
     {
       "volume_rank": 18,
@@ -542,10 +542,10 @@
       "total_score": 62,
       "rsi": 58.4,
       "range_pos": 72.8,
-      "per": 16.242386,
+      "per": 16.260162,
       "pbr": 2.14827,
       "roe": 14.1,
-      "div_yield": 2.2
+      "div_yield": 2.12
     },
     {
       "volume_rank": 22,
@@ -559,10 +559,10 @@
       "total_score": 62,
       "rsi": 46.9,
       "range_pos": 68.7,
-      "per": 29.382494,
+      "per": 29.41243,
       "pbr": 3.5450807,
       "roe": null,
-      "div_yield": 1.05
+      "div_yield": 1.06
     },
     {
       "volume_rank": 43,
@@ -576,10 +576,10 @@
       "total_score": 62,
       "rsi": 84.3,
       "range_pos": 99.0,
-      "per": 8.683975,
+      "per": 8.688253,
       "pbr": 1.504829,
       "roe": 7.7,
-      "div_yield": 2.59
+      "div_yield": 2.58
     },
     {
       "volume_rank": 45,
@@ -593,7 +593,7 @@
       "total_score": 62,
       "rsi": 54.3,
       "range_pos": 36.8,
-      "per": 17.494549,
+      "per": 17.512812,
       "pbr": 0.44537857,
       "roe": 3.8,
       "div_yield": 4.33
@@ -610,10 +610,10 @@
       "total_score": 62,
       "rsi": 40.7,
       "range_pos": 69.0,
-      "per": 28.223083,
+      "per": 28.248701,
       "pbr": 2.5082574,
       "roe": 10.3,
-      "div_yield": 1.06
+      "div_yield": 1.07
     },
     {
       "volume_rank": 3,
@@ -627,10 +627,10 @@
       "total_score": 61,
       "rsi": 64.0,
       "range_pos": 57.1,
-      "per": 55.538025,
+      "per": 55.555553,
       "pbr": 14.368285,
       "roe": 39.0,
-      "div_yield": 71.0
+      "div_yield": 72.0
     },
     {
       "volume_rank": 10,
@@ -661,10 +661,10 @@
       "total_score": 61,
       "rsi": 41.4,
       "range_pos": 44.5,
-      "per": 20.12756,
+      "per": 20.121338,
       "pbr": 2.4585047,
       "roe": 14.4,
-      "div_yield": 1.5
+      "div_yield": 1.54
     },
     {
       "volume_rank": 28,
@@ -695,10 +695,10 @@
       "total_score": 60,
       "rsi": 65.8,
       "range_pos": 70.1,
-      "per": 20.763765,
+      "per": 20.74534,
       "pbr": 3.841225,
       "roe": 16.7,
-      "div_yield": 3.78
+      "div_yield": 3.76
     },
     {
       "volume_rank": 26,
@@ -715,7 +715,7 @@
       "per": 48.514057,
       "pbr": 0.5294352,
       "roe": 2.3,
-      "div_yield": 2.83
+      "div_yield": 2.76
     },
     {
       "volume_rank": 48,
@@ -729,7 +729,7 @@
       "total_score": 58,
       "rsi": 59.2,
       "range_pos": 68.7,
-      "per": 89.47221,
+      "per": 89.28489,
       "pbr": 9.410387,
       "roe": 12.7,
       "div_yield": 10.0
@@ -746,10 +746,10 @@
       "total_score": 57,
       "rsi": 51.7,
       "range_pos": 51.8,
-      "per": 29.530005,
+      "per": 29.498497,
       "pbr": 2.510843,
       "roe": 11.6,
-      "div_yield": 1.33
+      "div_yield": 1.32
     },
     {
       "volume_rank": 29,
@@ -763,7 +763,7 @@
       "total_score": 56,
       "rsi": 38.5,
       "range_pos": 36.3,
-      "per": 17.077375,
+      "per": 17.09463,
       "pbr": 1.2724153,
       "roe": 8.0,
       "div_yield": 2.95
@@ -780,10 +780,10 @@
       "total_score": 56,
       "rsi": 39.0,
       "range_pos": 7.6,
-      "per": 14.828748,
+      "per": 14.83609,
       "pbr": 1.242474,
       "roe": 6.7,
-      "div_yield": 2.48
+      "div_yield": 2.47
     },
     {
       "volume_rank": 12,
@@ -797,10 +797,10 @@
       "total_score": 52,
       "rsi": 56.4,
       "range_pos": 25.7,
-      "per": 56.388927,
+      "per": 56.179455,
       "pbr": 4.16687,
       "roe": 14.7,
-      "div_yield": 74.0
+      "div_yield": 76.0
     },
     {
       "volume_rank": 23,
@@ -817,7 +817,7 @@
       "per": 68.73857,
       "pbr": 2.0830448,
       "roe": -4.1,
-      "div_yield": 58.0
+      "div_yield": 59.0
     },
     {
       "volume_rank": 31,
@@ -848,10 +848,10 @@
       "total_score": 48,
       "rsi": 54.8,
       "range_pos": 14.6,
-      "per": 40.1939,
+      "per": 40.324215,
       "pbr": 2.7159376,
       "roe": 6.0,
-      "div_yield": 2.59
+      "div_yield": 2.51
     }
   ],
   "ai_top10": [
@@ -867,10 +867,10 @@
       "total_score": 80,
       "rsi": 32.1,
       "range_pos": 80.9,
-      "per": 14.750516,
+      "per": 14.749299,
       "pbr": 1.4085084,
       "roe": 13.6,
-      "div_yield": 4.07,
+      "div_yield": 4.03,
       "ai_rank": 1,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -887,10 +887,10 @@
       "total_score": 78,
       "rsi": 50.5,
       "range_pos": 70.0,
-      "per": 13.860252,
+      "per": 13.868917,
       "pbr": 0.94661206,
       "roe": 19.5,
-      "div_yield": 2.61,
+      "div_yield": 2.55,
       "ai_rank": 2,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -907,10 +907,10 @@
       "total_score": 75,
       "rsi": 51.4,
       "range_pos": 50.8,
-      "per": 9.238438,
+      "per": 9.242091,
       "pbr": 1.1466296,
       "roe": 15.3,
-      "div_yield": 2.49,
+      "div_yield": 2.47,
       "ai_rank": 3,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -927,10 +927,10 @@
       "total_score": 75,
       "rsi": 52.2,
       "range_pos": 40.9,
-      "per": 15.28005,
+      "per": 15.267557,
       "pbr": 0.7708118,
       "roe": 5.6,
-      "div_yield": 3.71,
+      "div_yield": 3.69,
       "ai_rank": 4,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -947,10 +947,10 @@
       "total_score": 75,
       "rsi": 60.6,
       "range_pos": 47.5,
-      "per": 5.150462,
+      "per": 5.1493077,
       "pbr": 1.1144934,
       "roe": 23.4,
-      "div_yield": 3.35,
+      "div_yield": 3.26,
       "ai_rank": 5,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -967,10 +967,10 @@
       "total_score": 71,
       "rsi": 49.9,
       "range_pos": 34.6,
-      "per": 6.021611,
+      "per": 6.0240965,
       "pbr": 1.6429721,
       "roe": 32.0,
-      "div_yield": 20.0,
+      "div_yield": 21.0,
       "ai_rank": 6,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -987,10 +987,10 @@
       "total_score": 71,
       "rsi": 47.3,
       "range_pos": 40.9,
-      "per": 22.945004,
+      "per": 22.93596,
       "pbr": 2.7642152,
       "roe": 14.2,
-      "div_yield": 83.0,
+      "div_yield": 86.0,
       "ai_rank": 7,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -1007,7 +1007,7 @@
       "total_score": 70,
       "rsi": 66.6,
       "range_pos": 34.3,
-      "per": 4.5428185,
+      "per": 4.543404,
       "pbr": 1.4166782,
       "roe": 44.0,
       "div_yield": null,
@@ -1027,10 +1027,10 @@
       "total_score": 70,
       "rsi": 49.9,
       "range_pos": 42.3,
-      "per": 20.286203,
+      "per": 20.284029,
       "pbr": 2.6558235,
       "roe": 13.2,
-      "div_yield": 93.0,
+      "div_yield": 92.0,
       "ai_rank": 9,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -1047,10 +1047,10 @@
       "total_score": 70,
       "rsi": 48.6,
       "range_pos": 84.3,
-      "per": 14.4746475,
+      "per": 14.471806,
       "pbr": 1.7143477,
       "roe": 12.5,
-      "div_yield": 1.86,
+      "div_yield": 1.85,
       "ai_rank": 10,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
