@@ -1308,7 +1308,7 @@ def load_daily_ai_predictions():
         # GitHubのrawファイルを直接取得
         url = (
             f"https://raw.githubusercontent.com/"
-            f"{repo}/main/predictions.json"
+            f"{repo}/main/data/ai_predictions.json"
             f"?t={int(time.time())}"
         )
 
@@ -1384,7 +1384,7 @@ def render_daily_ai_prediction_tab(watchlist):
     if generated and len(generated) >= 16:
         generated = generated[:16]
 
-    top10 = entry.get("ai_top10", [])
+    top10 = entry.get("top10", entry.get("ai_top10", []))
     ai_comment = entry.get("ai_comment", "")
     user_comments = entry.get("user_comments", [])
 
@@ -1395,35 +1395,181 @@ def render_daily_ai_prediction_tab(watchlist):
         f"**{date_str} 引け後スキャン** ｜ 生成: {generated}"
     )
 
-    # =========================================================
+        # =========================================================
     # 本日のTOP10
     # =========================================================
+
+    # predictions.json / ai_predictions.json の両方に対応
+    if isinstance(data, list):
+        top10 = data[0].get("top10", data[0].get("ai_top10", [])) if data else []
+    else:
+        top10 = data.get("top10", data.get("ai_top10", []))
+
     if top10:
 
         st.markdown(
-            '<div class="section-head" style="margin-top:.8rem;">'
-            '🎯 本日の注目10銘柄'
-            '</div>',
+            '<div class="section-head" style="margin-top:.8rem;">🎯 本日の注目10銘柄</div>',
             unsafe_allow_html=True
         )
+
+        # ---------------------------------------------------------
+        # 日本語会社名
+        # ---------------------------------------------------------
+        company_names = {
+            "1332.T": "ニッスイ",
+            "1605.T": "INPEX",
+            "1801.T": "大成建設",
+            "1802.T": "大林組",
+            "1803.T": "清水建設",
+            "1925.T": "大和ハウス工業",
+            "1928.T": "積水ハウス",
+            "2181.T": "パーソルホールディングス",
+            "2413.T": "エムスリー",
+            "2502.T": "アサヒグループホールディングス",
+            "2802.T": "味の素",
+            "2914.T": "日本たばこ産業",
+            "3382.T": "セブン＆アイ・ホールディングス",
+            "3402.T": "東レ",
+            "3407.T": "旭化成",
+            "4004.T": "レゾナック・ホールディングス",
+            "4005.T": "住友化学",
+            "4188.T": "三菱ケミカルグループ",
+            "4502.T": "武田薬品工業",
+            "4519.T": "中外製薬",
+            "4523.T": "エーザイ",
+            "4568.T": "第一三共",
+            "4661.T": "オリエンタルランド",
+            "4901.T": "富士フイルムホールディングス",
+            "5020.T": "ENEOSホールディングス",
+            "5108.T": "ブリヂストン",
+            "5401.T": "日本製鉄",
+            "5406.T": "神戸製鋼所",
+            "5411.T": "JFEホールディングス",
+            "5802.T": "住友電気工業",
+            "6098.T": "リクルートホールディングス",
+            "6178.T": "日本郵政",
+            "6301.T": "コマツ",
+            "6501.T": "日立製作所",
+            "6503.T": "三菱電機",
+            "6504.T": "富士電機",
+            "6752.T": "パナソニック ホールディングス",
+            "6758.T": "ソニーグループ",
+            "6861.T": "キーエンス",
+            "6902.T": "デンソー",
+            "7011.T": "三菱重工業",
+            "7013.T": "IHI",
+            "7201.T": "日産自動車",
+            "7203.T": "トヨタ自動車",
+            "7267.T": "ホンダ",
+            "7733.T": "オリンパス",
+            "7741.T": "HOYA",
+            "7751.T": "キヤノン",
+            "7974.T": "任天堂",
+            "8001.T": "伊藤忠商事",
+            "8002.T": "丸紅",
+            "8031.T": "三井物産",
+            "8053.T": "住友商事",
+            "8058.T": "三菱商事",
+            "8306.T": "三菱UFJフィナンシャル・グループ",
+            "8308.T": "りそなホールディングス",
+            "8309.T": "三井住友トラストグループ",
+            "8316.T": "三井住友フィナンシャルグループ",
+            "8411.T": "みずほフィナンシャルグループ",
+            "8601.T": "大和証券グループ本社",
+            "8604.T": "野村ホールディングス",
+            "8750.T": "第一生命ホールディングス",
+            "8766.T": "東京海上ホールディングス",
+            "8801.T": "三井不動産",
+            "8802.T": "三菱地所",
+            "8830.T": "住友不動産",
+            "9020.T": "東日本旅客鉄道",
+            "9021.T": "西日本旅客鉄道",
+            "9022.T": "東海旅客鉄道",
+            "9101.T": "日本郵船",
+            "9104.T": "商船三井",
+            "9107.T": "川崎汽船",
+            "9201.T": "日本航空",
+            "9202.T": "ANAホールディングス",
+            "9432.T": "NTT",
+            "9433.T": "KDDI",
+            "9434.T": "ソフトバンク",
+            "9501.T": "東京電力ホールディングス",
+            "9502.T": "中部電力",
+            "9503.T": "関西電力",
+            "9513.T": "電源開発",
+            "9531.T": "東京ガス",
+            "9532.T": "大阪ガス",
+            "9983.T": "ファーストリテイリング",
+            "9984.T": "ソフトバンクグループ",
+        }
+
+        cols = st.columns(2)
 
         for i, s in enumerate(top10, 1):
 
             ticker = s.get("ticker", "")
-            name = s.get("name", "")
-            price = safe_float(s.get("price")) or 0
-            score = safe_float(s.get("total_score", s.get("total", 0))) or 0
-            chg = safe_float(s.get("chg_pct")) or 0
 
-            # 現在のpredictions.jsonでは直接入っている
-            rsi = s.get("rsi", "—")
-            range_pos = s.get("range_pos", "—")
+            # 日本語名が登録されていれば使用
+            # なければJSONのnameを使用
+            name = company_names.get(
+                ticker,
+                s.get("name", "")
+            )
+
+            price = safe_float(
+                s.get("price")
+            ) or 0
+
+            score = safe_float(
+                s.get("total_score", s.get("total", 0))
+            ) or 0
+
+            chg = safe_float(
+                s.get("chg_pct")
+            ) or 0
+
             volume = s.get("volume", 0)
 
-            reason = s.get("reason", "")
-            verdict_text = s.get("verdict", "")
+            # chartの中に入っている場合にも対応
+            chart = s.get("chart", {})
 
-            # スコア色
+            if not isinstance(chart, dict):
+                chart = {}
+
+            rsi = s.get(
+                "rsi",
+                chart.get("rsi", "—")
+            )
+
+            range_pos = s.get(
+                "range_pos",
+                chart.get("range_pos", "—")
+            )
+
+            # -------------------------------------------------
+            # AI個別理由
+            #
+            # JSONの形式が多少違っても拾えるようにする
+            # -------------------------------------------------
+            reason = (
+                s.get("reason")
+                or s.get("ai_reason")
+                or s.get("analysis")
+                or s.get("comment")
+                or s.get("ai_comment")
+                or ""
+            )
+
+            verdict_text = (
+                s.get("verdict")
+                or s.get("prediction")
+                or s.get("forecast")
+                or ""
+            )
+
+            # -------------------------------------------------
+            # スコアカラー
+            # -------------------------------------------------
             if score >= 80:
                 score_color = "#00e5a0"
             elif score >= 65:
@@ -1433,216 +1579,109 @@ def render_daily_ai_prediction_tab(watchlist):
             else:
                 score_color = "#ef5350"
 
-            # 前日比色
-            chg_color = "#00e5a0" if chg >= 0 else "#ef5350"
-            chg_sign = "+" if chg >= 0 else ""
+            # -------------------------------------------------
+            # 騰落率
+            # -------------------------------------------------
+            chg_color = "#00a67d" if chg >= 0 else "#e5484d"
 
             # -------------------------------------------------
-            # AI予想カード
+            # 2列表示
             # -------------------------------------------------
-            st.markdown(f"""
-            <div style="
-                background:#0d1f3c;
-                border:1px solid #1e3a5f;
-                border-radius:10px;
-                padding:1rem 1.1rem;
-                margin-bottom:.7rem;
-            ">
+            with cols[(i - 1) % 2]:
 
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:flex-start;
-                    gap:1rem;
-                ">
+                st.markdown(
+                    f"### #{i} {name}"
+                )
 
-                    <div style="flex:1;">
+                st.caption(ticker)
 
-                        <div style="
-                            font-family:'IBM Plex Mono',monospace;
-                            font-size:.65rem;
-                            color:#4a7fa5;
-                        ">
-                            AI RANK #{i}　{ticker}
-                        </div>
+                c1, c2 = st.columns(2)
 
-                        <div style="
-                            font-size:1.05rem;
-                            font-weight:700;
-                            color:#e8f4ff;
-                            margin-top:.15rem;
-                        ">
-                            {name}
-                        </div>
+                with c1:
+                    st.metric(
+                        "株価",
+                        f"¥{price:,.0f}",
+                        f"{chg:+.2f}%"
+                    )
 
-                        <div style="
-                            font-family:'IBM Plex Mono',monospace;
-                            font-size:.9rem;
-                            color:#e8f4ff;
-                            margin-top:.2rem;
-                        ">
-                            ¥{price:,.0f}
+                with c2:
+                    st.metric(
+                        "総合スコア",
+                        f"{score:.0f} / 100"
+                    )
 
-                            <span style="color:{chg_color};">
-                                {chg_sign}{chg:.2f}%
-                            </span>
-                        </div>
+                st.write(
+                    f"出来高：{volume:,}　"
+                    f"RSI：{rsi}　"
+                    f"52週位置：{range_pos}%"
+                )
 
-                    </div>
+                # -------------------------------------------------
+                # AI予想
+                # -------------------------------------------------
+                if verdict_text:
+                    st.markdown(
+                        f"**予想：{verdict_text}**"
+                    )
 
-                    <div style="
-                        text-align:right;
-                        min-width:90px;
-                    ">
+                # -------------------------------------------------
+                # AI個別理由
+                # -------------------------------------------------
+                if reason:
 
-                        <div style="
-                            font-family:'IBM Plex Mono',monospace;
-                            font-size:2rem;
-                            font-weight:700;
-                            color:{score_color};
-                        ">
-                            {score:.0f}
-                            <span style="
-                                font-size:.65rem;
-                                color:#4a7fa5;
-                            ">
-                                /100
-                            </span>
-                        </div>
+                    st.info(
+                        f"🤖 AI判断\n\n{reason}"
+                    )
 
-                        <div style="
-                            margin-top:.2rem;
-                            font-weight:700;
-                            color:{score_color};
-                            font-size:.8rem;
-                        ">
-                            {verdict_text}
-                        </div>
+                else:
 
-                    </div>
+                    st.caption(
+                        "🤖 個別のAI判断理由は、下の「AIトレード予想・市場コメント」を参照してください。"
+                    )
 
-                </div>
-
-                <div style="
-                    display:flex;
-                    gap:.4rem;
-                    flex-wrap:wrap;
-                    margin-top:.7rem;
-                ">
-
-                    <span style="
-                        background:#0a0f1e;
-                        border:1px solid #1e3a5f;
-                        border-radius:4px;
-                        padding:.2rem .5rem;
-                        font-family:'IBM Plex Mono',monospace;
-                        font-size:.65rem;
-                        color:#7fb3d3;
-                    ">
-                        出来高 {volume:,}
-                    </span>
-
-                    <span style="
-                        background:#0a0f1e;
-                        border:1px solid #1e3a5f;
-                        border-radius:4px;
-                        padding:.2rem .5rem;
-                        font-family:'IBM Plex Mono',monospace;
-                        font-size:.65rem;
-                        color:#7fb3d3;
-                    ">
-                        RSI {rsi}
-                    </span>
-
-                    <span style="
-                        background:#0a0f1e;
-                        border:1px solid #1e3a5f;
-                        border-radius:4px;
-                        padding:.2rem .5rem;
-                        font-family:'IBM Plex Mono',monospace;
-                        font-size:.65rem;
-                        color:#7fb3d3;
-                    ">
-                        52週 {range_pos}%
-                    </span>
-
-                </div>
-
-            </div>
-            """, unsafe_allow_html=True)
-
-            # -------------------------------------------------
-            # AIの個別予想
-            # -------------------------------------------------
-            if reason:
-
-                st.markdown(f"""
-                <div style="
-                    background:#060d1a;
-                    border-left:3px solid {score_color};
-                    padding:.7rem 1rem;
-                    margin:-.45rem 0 .8rem 0;
-                    color:#d9e8f5;
-                    font-size:.82rem;
-                    line-height:1.7;
-                ">
-                    <b style="color:{score_color};">
-                        🤖 AI判断
-                    </b>
-                    <br>
-                    {reason}
-                </div>
-                """, unsafe_allow_html=True)
+                st.divider()
 
     # =========================================================
-    # Geminiによる市場コメント
+    # GeminiによるAIトレード予想・市場コメント
     # =========================================================
+
     if ai_comment:
+
         st.divider()
+
         st.markdown(
-            '<div class="section-head">🤖 AI トレード予想・市場コメント</div>',
-            unsafe_allow_html=True
+            "### 🤖 AIトレード予想・市場コメント"
         )
 
+        # AIの文章をそのままMarkdownとして表示
+        # HTMLとして解釈させないので途中で構文が壊れにくい
         st.markdown(
-            f"""
-            <div style="
-                background:#060d1a;
-                border:1px solid #2d6a9f;
-                border-radius:10px;
-                padding:1.2rem 1.4rem;
-                line-height:1.9;
-                color:#e8f4ff;
-                font-size:.88rem;
-                white-space:pre-wrap;
-                overflow-wrap:anywhere;
-            ">{ai_comment}</div>
-            """,
-            unsafe_allow_html=True
+            ai_comment
         )
 
     # =========================================================
     # ユーザーコメント
     # =========================================================
+
     st.divider()
 
     st.markdown(
-        '<div class="section-head">💬 あなたのコメントを追加</div>',
-        unsafe_allow_html=True
+        "### 💬 あなたのコメントを追加"
     )
 
-    with st.expander("コメントを追加する", expanded=False):
-
-        comment_options = ["全体へのコメント"]
-
-        for s in top10:
-            comment_options.append(
-                f"{s.get('ticker','')} {s.get('name','')}"
-            )
+    with st.expander(
+        "コメントを追加する",
+        expanded=True
+    ):
 
         comment_ticker = st.selectbox(
             "対象銘柄",
-            comment_options,
+            ["全体へのコメント"]
+            + [
+                f"{s.get('ticker', '')} "
+                f"{company_names.get(s.get('ticker', ''), s.get('name', ''))}"
+                for s in top10
+            ],
             key="pred_ticker"
         )
 
@@ -1654,15 +1693,19 @@ def render_daily_ai_prediction_tab(watchlist):
 
         agree = st.radio(
             "AI予想との一致度",
-            ["同意", "部分同意", "異論あり", "コメントのみ"],
+            [
+                "同意",
+                "部分同意",
+                "異論あり",
+                "コメントのみ"
+            ],
             horizontal=True,
             key="pred_agree"
         )
 
         if st.button(
             "💾 コメントを保存",
-            type="primary",
-            key="save_prediction_comment"
+            type="primary"
         ):
 
             if comment_text:
@@ -1672,18 +1715,12 @@ def render_daily_ai_prediction_tab(watchlist):
                     []
                 )
 
-                # dict形式にも対応
-                if isinstance(predictions, dict):
-                    predictions = [predictions]
-
-                if predictions:
+                if isinstance(predictions, list) and predictions:
 
                     predictions[0].setdefault(
                         "user_comments",
                         []
-                    )
-
-                    predictions[0]["user_comments"].insert(
+                    ).insert(
                         0,
                         {
                             "id": datetime.now().strftime(
