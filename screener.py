@@ -287,26 +287,39 @@ def score_ticker(ticker):
 
 
 def call_gemini(prompt, api_key):
-    """Gemini APIを呼び出す"""
-    import urllib.request, urllib.error
+    """Gemini APIを呼び出してAI判断を取得する"""
+    import urllib.request
+    import urllib.error
 
     models = [
         "gemini-3-flash-preview",
         "gemini-3.1-flash-lite",
-        "gemini-flash-latest"
+        "gemini-flash-latest",
     ]
 
     for model in models:
         try:
             import json as _json
 
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            url = (
+                "https://generativelanguage.googleapis.com/"
+                f"v1beta/models/{model}:generateContent?key={api_key}"
+            )
 
             body = _json.dumps({
-                "contents": [{"parts": [{"text": prompt}]}],
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": prompt
+                            }
+                        ]
+                    }
+                ],
                 "generationConfig": {
-                    "temperature": 0.7,
-                    "maxOutputTokens": 8192
+                    "temperature": 0.5,
+                    "maxOutputTokens": 8192,
+                    "responseMimeType": "application/json",
                 }
             }).encode("utf-8")
 
@@ -316,156 +329,823 @@ def call_gemini(prompt, api_key):
                 headers={
                     "Content-Type": "application/json; charset=utf-8"
                 },
-                method="POST"
+                method="POST",
             )
 
-            with urllib.request.urlopen(req, timeout=30) as res:
-                data = _json.loads(res.read().decode("utf-8"))
+            with urllib.request.urlopen(req, timeout=60) as res:
+                data = _json.loads(
+                    res.read().decode("utf-8")
+                )
 
-            candidate = data["candidates"][0]
+            candidates = data.get("candidates", [])
 
-            # Geminiがなぜ回答を終了したか確認
-            finish_reason = candidate.get("finishReason", "")
-            print(f"Gemini finishReason: {finish_reason}")
+            if not candidates:
+                print(f"Gemini {model}: candidatesなし")
+                continue
 
-            return candidate["content"]["parts"][0]["text"]
+            candidate = candidates[0]
+
+            finish_reason = candidate.get(
+                "finishReason",
+                ""
+            )
+
+            print(
+                f"Gemini finishReason: {finish_reason}"
+            )
+
+            parts = (
+                candidate
+                .get("content", {})
+                .get("parts", [])
+            )
+
+            if not parts:
+                print(
+                    f"Gemini {model}: partsなし"
+                )
+                continue
+
+            text = parts[0].get("text", "")
+
+            if not text:
+                print(
+                    f"Gemini {model}: textなし"
+                )
+                continue
+
+            # ```json ～ ``` が付いていた場合に除去
+            text = text.strip()
+
+            if text.startswith("```"):
+                lines = text.splitlines()
+
+                if lines:
+                    lines = lines[1:]
+
+                if lines and lines[-1].strip() == "```":
+                    lines = lines[:-1]
+
+                text = "\n".join(lines).strip()
+
+            return text
+
+        except urllib.error.HTTPError as e:
+            print(
+                f"Gemini {model} HTTP Error: "
+                f"{e.code} {e.reason}"
+            )
+
+            try:
+                error_body = e.read().decode(
+                    "utf-8",
+                    errors="ignore"
+                )
+                print(error_body[:1000])
+            except:
+                pass
 
         except Exception as e:
-            print(f"Gemini {model} エラー: {e}")
-            continue
+            print(
+                f"Gemini {model} エラー: {e}"
+            )
 
-    return "AI予想の生成に失敗しました"
+    return ""
 
 
 def build_screening_prompt(top10):
-    """スクリーニング結果からGeminiプロンプトを構築"""
+    """
+    GeminiにTOP10を渡し、
+    各銘柄の買い・売り・様子見を
+    Gemini自身に判断させる。
+    """
+
     stocks_text = ""
+
     for i, s in enumerate(top10, 1):
-        fa = s["funda"]
-        ch = s["chart"]
+
+        fa = s.get("funda", {})
+        ch = s.get("chart", {})
+
         stocks_text += f"""
-{i}. {s['name']}（{s['ticker']}）
-   株価: ¥{s['price']:,.0f}（前日比 {s['chg_pct']:+.2f}%）
-   出来高: {s['volume']:,}
-   総合スコア: {s['total']}/100点
-   PER:{fa.get('per','—')}倍 PBR:{fa.get('pbr','—')}倍 ROE:{fa.get('roe','—')}%
-   RSI:{ch.get('rsi','—')} MA25:{ch.get('ma25','—')}円 BB位置:{ch.get('bb_pos','—')}%
-   52週位置:{ch.get('range_pos','—')}%
+{i}. {s.get('name', '')}（{s.get('ticker', '')}）
+株価: ¥{s.get('price', 0):,.0f}
+前日比: {s.get('chg_pct', 0):+.2f}%
+出来高: {s.get('volume', 0):,}
+総合スコア: {s.get('total', 0)}/100
+
+PER: {fa.get('per', '—')}倍
+PBR: {fa.get('pbr', '—')}倍
+ROE: {fa.get('roe', '—')}%
+
+RSI: {ch.get('rsi', '—')}
+MA25: {ch.get('ma25', '—')}円
+MA75: {ch.get('ma75', '—')}円
+MA200: {ch.get('ma200', '—')}円
+BB位置: {ch.get('bb_pos', '—')}%
+52週位置: {ch.get('range_pos', '—')}%
+
 """
 
-    today = datetime.now().strftime("%Y年%m月%d日")
-    return f"""あなたは経験豊富な日本株トレーダー兼アナリストです。
-本日（{today}）の出来高上位銘柄の中からスコアリングで選出した以下の10銘柄について、
-翌営業日〜数日間のトレード予想を提供してください。
 
-## 選出銘柄（出来高上位・スコア順）
+    today = datetime.now().strftime(
+        "%Y年%m月%d日"
+    )
+
+    prompt = f"""
+あなたは経験豊富な日本株トレーダーです。
+
+本日 {today} の日本株市場データを分析してください。
+
+以下は、出来高上位50銘柄から
+ファンダメンタルズとテクニカル指標を
+総合評価して選出したTOP10銘柄です。
+
+重要なのは、
+「総合スコアが高いから買い」
+と機械的に判断することではありません。
+
+あなた自身が以下の情報を総合的に判断して、
+
+・買い
+・売り
+・様子見
+
+のいずれかを決定してください。
+
+判断材料：
+
+・RSI
+・25日移動平均線
+・75日移動平均線
+・200日移動平均線
+・ボリンジャーバンド
+・52週高値安値位置
+・出来高
+・前日比
+・株価位置
+・PER
+・PBR
+・ROE
+・ファンダメンタルズ
+・短期的な過熱感
+・押し目の可能性
+・上昇トレンド / 下落トレンド
+・出来高を伴った売買
+・リスク
+
+特に、
+
+「スコアは高いが短期的には過熱している」
+
+「スコアは低めだが売られすぎで反発余地がある」
+
+など、単純な点数では判断できない部分も考慮してください。
+
+========================
+対象銘柄
+========================
 
 {stocks_text}
 
-## 各銘柄について以下の形式で回答してください
+========================
+出力ルール
+========================
 
-【銘柄名（コード）】
-- 予想: 上昇/下落/横ばい
-- 根拠: 2〜3行でテクニカル・ファンダの観点から
-- 注目ポイント: 明日見るべき価格帯や出来高水準
-- リスク: 注意すべき点1つ
+必ずJSONだけを返してください。
 
-最後に【総合市場コメント】として今日の出来高動向から読み取れる市場の地合いを3〜4行でまとめてください。
+Markdownは禁止です。
+
+説明文は禁止です。
+
+以下の形式を厳密に守ってください。
+
+{{
+  "decisions": [
+    {{
+      "rank": 1,
+      "ticker": "XXXX.T",
+      "name": "銘柄名",
+      "decision": "買い",
+      "confidence": 80,
+      "reason": "判断理由を2〜4文で説明",
+      "entry_price": "注目する買い価格帯",
+      "target_price": "目標価格帯",
+      "stop_price": "撤退を検討する価格帯",
+      "watch_point": "明日確認するポイント",
+      "risk": "最大のリスク"
+    }}
+  ],
+  "market_comment": "本日の出来高動向から判断した日本市場全体の地合い"
+}}
+
+decision は必ず以下の3つのどれかにしてください。
+
+「買い」
+「売り」
+「様子見」
+
+confidence は0〜100の整数です。
+
+rankは1〜10です。
+
+必ず10銘柄すべてについて判断してください。
+
+銘柄を省略してはいけません。
+
+判断はあなた自身で行ってください。
+
+総合スコアだけを理由にしてはいけません。
 """
 
 
-def save_to_github(path, data, token, repo):
-    """GitHubにJSONを保存"""
-    import base64, urllib.request
-    api_url = f"https://api.github.com/repos/{repo}/contents/{path}"
-    headers = {"Authorization": f"token {token}", "Content-Type": "application/json"}
-    content = base64.b64encode(
-        json.dumps(data, ensure_ascii=False, indent=2).encode()
-    ).decode()
+    return prompt
+
+
+def parse_gemini_result(text, top10):
+    """
+    GeminiのJSON回答を安全に解析する。
+    """
+
+    import json as _json
+
+    if not text:
+        return {
+            "decisions": [],
+            "market_comment": "",
+        }
+
     try:
-        req = urllib.request.Request(api_url, headers=headers)
-        with urllib.request.urlopen(req) as res:
-            sha = json.loads(res.read())["sha"]
-    except:
-        sha = None
-    payload = json.dumps({
-        "message": f"auto: screening {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+
+        text = text.strip()
+
+        # ```json ～ ``` の除去
+        if text.startswith("```"):
+
+            lines = text.splitlines()
+
+            if lines:
+                lines = lines[1:]
+
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+
+            text = "\n".join(lines).strip()
+
+        result = _json.loads(text)
+
+        if not isinstance(result, dict):
+            raise ValueError(
+                "Gemini結果がdictではありません"
+            )
+
+        decisions = result.get(
+            "decisions",
+            []
+        )
+
+        market_comment = result.get(
+            "market_comment",
+            ""
+        )
+
+        if not isinstance(decisions, list):
+            decisions = []
+
+        valid_decisions = []
+
+        for d in decisions:
+
+            if not isinstance(d, dict):
+                continue
+
+            decision = d.get(
+                "decision",
+                "様子見"
+            )
+
+            if decision not in [
+                "買い",
+                "売り",
+                "様子見",
+            ]:
+                decision = "様子見"
+
+            confidence = safe_float(
+                d.get("confidence", 50)
+            )
+
+            if confidence is None:
+                confidence = 50
+
+            confidence = max(
+                0,
+                min(
+                    100,
+                    int(confidence)
+                )
+            )
+
+            valid_decisions.append({
+                "rank": d.get("rank", 0),
+                "ticker": d.get("ticker", ""),
+                "name": d.get("name", ""),
+                "decision": decision,
+                "confidence": confidence,
+                "reason": d.get("reason", ""),
+                "entry_price": d.get(
+                    "entry_price",
+                    ""
+                ),
+                "target_price": d.get(
+                    "target_price",
+                    ""
+                ),
+                "stop_price": d.get(
+                    "stop_price",
+                    ""
+                ),
+                "watch_point": d.get(
+                    "watch_point",
+                    ""
+                ),
+                "risk": d.get(
+                    "risk",
+                    ""
+                ),
+            })
+
+        return {
+            "decisions": valid_decisions,
+            "market_comment": market_comment,
+        }
+
+    except Exception as e:
+
+        print(
+            f"Gemini JSON解析エラー: {e}"
+        )
+
+        print(
+            "Gemini raw response:"
+        )
+
+        print(text[:3000])
+
+        return {
+            "decisions": [],
+            "market_comment": "",
+        }
+
+
+def save_to_github(
+    path,
+    data,
+    token,
+    repo
+):
+    """GitHubにJSONを保存"""
+
+    import base64
+    import urllib.request
+
+    api_url = (
+        f"https://api.github.com/repos/"
+        f"{repo}/contents/{path}"
+    )
+
+    headers = {
+        "Authorization":
+            f"token {token}",
+        "Content-Type":
+            "application/json",
+        "User-Agent":
+            "stock-tool",
+    }
+
+    content = base64.b64encode(
+        json.dumps(
+            data,
+            ensure_ascii=False,
+            indent=2
+        ).encode("utf-8")
+    ).decode("ascii")
+
+    sha = None
+
+    try:
+
+        req = urllib.request.Request(
+            api_url,
+            headers=headers,
+            method="GET",
+        )
+
+        with urllib.request.urlopen(
+            req,
+            timeout=30
+        ) as res:
+
+            remote_data = json.loads(
+                res.read().decode(
+                    "utf-8"
+                )
+            )
+
+            sha = remote_data.get(
+                "sha"
+            )
+
+    except Exception as e:
+
+        print(
+            f"GitHub既存ファイル取得:"
+            f"{e}"
+        )
+
+    payload = {
+        "message":
+            f"auto: screening "
+            f"{datetime.now().strftime('%Y-%m-%d %H:%M')}",
         "content": content,
-        **({"sha": sha} if sha else {}),
-    }).encode()
-    req2 = urllib.request.Request(api_url, data=payload, headers=headers, method="PUT")
-    urllib.request.urlopen(req2)
-    print(f"GitHubに保存しました: {path}")
+    }
+
+    if sha:
+        payload["sha"] = sha
+
+    req = urllib.request.Request(
+        api_url,
+        data=json.dumps(
+            payload
+        ).encode("utf-8"),
+        headers=headers,
+        method="PUT",
+    )
+
+    with urllib.request.urlopen(
+        req,
+        timeout=30
+    ) as res:
+
+        result = json.loads(
+            res.read().decode(
+                "utf-8"
+            )
+        )
+
+    print(
+        f"GitHubに保存しました: {path}"
+    )
+
+    return result
 
 
 def run():
+
     import yfinance as yf
 
-    # 環境変数からキーを取得（GitHub Actions用）
-    gemini_key = os.environ.get("GEMINI_API_KEY", "")
-    github_token = os.environ.get("GITHUB_TOKEN", "")
-    github_repo  = os.environ.get("GITHUB_REPO", "perfume9164-afk/stock-tool")
+    # ==========================================
+    # 環境変数
+    # ==========================================
 
-    today = datetime.now().strftime("%Y-%m-%d")
-    print(f"=== スクリーニング開始 {today} ===")
+    gemini_key = os.environ.get(
+        "GEMINI_API_KEY",
+        ""
+    )
 
-    # STEP 1: 出来高上位50銘柄を取得
+    github_token = os.environ.get(
+        "GITHUB_TOKEN",
+        ""
+    )
+
+    github_repo = os.environ.get(
+        "GITHUB_REPO",
+        "perfume9164-afk/stock-tool"
+    )
+
+    today = datetime.now().strftime(
+        "%Y-%m-%d"
+    )
+
+    print(
+        f"=== スクリーニング開始 {today} ==="
+    )
+
+    # ==========================================
+    # STEP 1
+    # 出来高TOP50
+    # ==========================================
+
+    print(
+        "STEP 1: 出来高ランキング取得"
+    )
+
     top50 = get_volume_ranking(50)
-    print(f"出来高上位50銘柄: {top50[:10]}…")
 
-    # STEP 2: スコアリング
-    print("スコアリング中…")
+    print(
+        f"出来高上位50銘柄:"
+        f" {top50[:10]}..."
+    )
+
+    if not top50:
+
+        print(
+            "出来高データを取得できませんでした"
+        )
+
+        return
+
+    # ==========================================
+    # STEP 2
+    # スコアリング
+    # ==========================================
+
+    print(
+        "STEP 2: スコアリング"
+    )
+
     scored = []
+
     for ticker in top50:
-        result = score_ticker(ticker)
+
+        result = score_ticker(
+            ticker
+        )
+
         if result:
-            scored.append(result)
-            print(f"  {ticker}: {result['total']}点")
+
+            scored.append(
+                result
+            )
+
+            print(
+                f"  {ticker}: "
+                f"{result['total']}点"
+            )
+
         time.sleep(0.3)
 
-    # STEP 3: 上位10銘柄を選出
-    scored.sort(key=lambda x: x["total"], reverse=True)
+    if not scored:
+
+        print(
+            "スコアリング結果がありません"
+        )
+
+        return
+
+    # ==========================================
+    # STEP 3
+    # TOP10
+    # ==========================================
+
+    scored.sort(
+        key=lambda x:
+            x["total"],
+        reverse=True
+    )
+
     top10 = scored[:10]
-    print(f"\n選出10銘柄: {[s['ticker'] for s in top10]}")
 
-    # STEP 4: Geminiでトレード予想生成
+    print(
+        "\n選出10銘柄:"
+    )
+
+    for i, s in enumerate(
+        top10,
+        1
+    ):
+
+        print(
+            f"{i}. "
+            f"{s['name']} "
+            f"({s['ticker']}) "
+            f"{s['total']}点"
+        )
+
+    # ==========================================
+    # STEP 4
+    # Gemini AI判断
+    # ==========================================
+
     ai_comment = ""
-    if gemini_key:
-        print("AI予想生成中…")
-        prompt = build_screening_prompt(top10)
-        ai_comment = call_gemini(prompt, gemini_key)
-        print("AI予想生成完了")
-    else:
-        ai_comment = "GEMINI_API_KEYが設定されていません"
 
-    # STEP 5: 結果を保存
-    predictions = load_json(PREDICTIONS_FILE, [])
+    ai_decisions = []
+
+    market_comment = ""
+
+    if gemini_key:
+
+        print(
+            "\nSTEP 4: "
+            "Gemini AI判断生成中..."
+        )
+
+        prompt = build_screening_prompt(
+            top10
+        )
+
+        raw_ai = call_gemini(
+            prompt,
+            gemini_key
+        )
+
+        if raw_ai:
+
+            print(
+                "Gemini回答取得完了"
+            )
+
+            parsed = parse_gemini_result(
+                raw_ai,
+                top10
+            )
+
+            ai_decisions = parsed.get(
+                "decisions",
+                []
+            )
+
+            market_comment = parsed.get(
+                "market_comment",
+                ""
+            )
+
+            # Streamlit旧表示との互換用
+            ai_comment = raw_ai
+
+            print(
+                f"AI判断件数: "
+                f"{len(ai_decisions)}"
+            )
+
+            for d in ai_decisions:
+
+                print(
+                    f"  "
+                    f"{d.get('ticker')} "
+                    f"→ "
+                    f"{d.get('decision')} "
+                    f""
+                    f"({d.get('confidence')}%)"
+                )
+
+        else:
+
+            print(
+                "Geminiから回答を取得できませんでした"
+            )
+
+            ai_comment = (
+                "GeminiからAI判断を取得できませんでした"
+            )
+
+    else:
+
+        print(
+            "GEMINI_API_KEYが設定されていません"
+        )
+
+        ai_comment = (
+            "GEMINI_API_KEYが設定されていません"
+        )
+
+    # ==========================================
+    # STEP 5
+    # predictions.json保存
+    # ==========================================
+
+    print(
+        "\nSTEP 5: "
+        "predictions.json保存"
+    )
+
+    predictions = load_json(
+        PREDICTIONS_FILE,
+        []
+    )
+
     new_entry = {
-        "date":       today,
-        "generated_at": datetime.now().isoformat(),
-        "top10":      top10,
-        "ai_comment": ai_comment,
-        "user_comments": [],  # Fujioさんのコメントを格納
+
+        "date":
+            today,
+
+        "generated_at":
+            datetime.now().isoformat(),
+
+        "top10":
+            top10,
+
+        # Geminiの生JSON
+        "ai_comment":
+            ai_comment,
+
+        # Geminiが判断した結果
+        "ai_decisions":
+            ai_decisions,
+
+        # 市場コメント
+        "market_comment":
+            market_comment,
+
+        "user_comments":
+            [],
     }
 
-    # 同日分は上書き
-    predictions = [p for p in predictions if p.get("date") != today]
-    predictions.insert(0, new_entry)
-    # 直近30日分のみ保持
+    # ==========================================
+    # 同日データは削除
+    # ==========================================
+
+    predictions = [
+        p
+        for p in predictions
+        if p.get("date") != today
+    ]
+
+    # 最新を先頭
+    predictions.insert(
+        0,
+        new_entry
+    )
+
+    # 直近30日
     predictions = predictions[:30]
 
-    save_json(PREDICTIONS_FILE, predictions)
-    print(f"ローカルに保存: {PREDICTIONS_FILE}")
+    save_json(
+        PREDICTIONS_FILE,
+        predictions
+    )
 
-    # GitHubにも保存
+    print(
+        f"{PREDICTIONS_FILE} "
+        "保存完了"
+    )
+
+    # ==========================================
+    # STEP 6
+    # GitHub保存
+    # ==========================================
+
     if github_token:
-        try:
-            save_to_github(PREDICTIONS_FILE, predictions, github_token, github_repo)
-        except Exception as e:
-            print(f"GitHub保存エラー: {e}")
 
-    print("\n=== スクリーニング完了 ===")
-    print(f"選出銘柄: {[s['name'] for s in top10]}")
+        print(
+            "STEP 6: "
+            "GitHubへ保存"
+        )
+
+        try:
+
+            save_to_github(
+                PREDICTIONS_FILE,
+                predictions,
+                github_token,
+                github_repo
+            )
+
+            print(
+                "GitHub保存成功"
+            )
+
+        except Exception as e:
+
+            print(
+                f"GitHub保存エラー: {e}"
+            )
+
+    else:
+
+        print(
+            "GITHUB_TOKENがありません"
+        )
+
+    # ==========================================
+    # 完了
+    # ==========================================
+
+    print(
+        "\n=============================="
+    )
+
+    print(
+        "=== スクリーニング完了 ==="
+    )
+
+    print(
+        f"日付: {today}"
+    )
+
+    print(
+        f"TOP10: "
+        f"{len(top10)}銘柄"
+    )
+
+    print(
+        f"AI判断: "
+        f"{len(ai_decisions)}銘柄"
+    )
+
+    print(
+        "=============================="
+    )
 
 
 if __name__ == "__main__":
