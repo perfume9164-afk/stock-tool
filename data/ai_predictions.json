@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-09",
-  "generated_at": "2026-10-09 23:24 JST",
+  "date": "2026-10-13",
+  "generated_at": "2026-10-13 01:46 JST",
   "universe_size": 300,
   "top50": [
     {
@@ -35,7 +35,7 @@
       "per": 6.75435,
       "pbr": 1.8143039,
       "roe": 32.0,
-      "div_yield": 18.0
+      "div_yield": 19.0
     },
     {
       "volume_rank": 28,
@@ -52,7 +52,7 @@
       "per": 5.3352885,
       "pbr": 0.9704374,
       "roe": 19.5,
-      "div_yield": 2.51
+      "div_yield": 2.49
     },
     {
       "volume_rank": 40,
@@ -69,7 +69,7 @@
       "per": 7.55353,
       "pbr": 1.1114703,
       "roe": 15.3,
-      "div_yield": 2.54
+      "div_yield": 2.55
     },
     {
       "volume_rank": 8,
@@ -100,7 +100,7 @@
       "total_score": 73,
       "rsi": 64.5,
       "range_pos": 61.5,
-      "per": 17.938303,
+      "per": 17.939287,
       "pbr": 2.6982687,
       "roe": 11.6,
       "div_yield": 1.19
@@ -168,7 +168,7 @@
       "total_score": 71,
       "rsi": 38.6,
       "range_pos": 84.7,
-      "per": 12.781186,
+      "per": 12.780219,
       "pbr": 1.2677808,
       "roe": 10.8,
       "div_yield": 2.79
@@ -188,7 +188,7 @@
       "per": 14.376706,
       "pbr": 0.7247151,
       "roe": 5.6,
-      "div_yield": 3.98
+      "div_yield": 3.92
     },
     {
       "volume_rank": 1,
@@ -206,6 +206,23 @@
       "pbr": 1.4280994,
       "roe": 10.7,
       "div_yield": 3.14
+    },
+    {
+      "volume_rank": 14,
+      "ticker": "8316.T",
+      "name": "Sumitomo Mitsui Financial Group, Inc.",
+      "price": 3256.0,
+      "volume": 18614000,
+      "volume_ratio": 0.97,
+      "funda_score": 38,
+      "chart_score": 32,
+      "total_score": 70,
+      "rsi": 41.4,
+      "range_pos": 78.9,
+      "per": 14.599587,
+      "pbr": 0.76816535,
+      "roe": 8.6,
+      "div_yield": 2.73
     },
     {
       "volume_rank": 24,
@@ -290,7 +307,7 @@
       "per": 32.20126,
       "pbr": 6.5942526,
       "roe": 22.6,
-      "div_yield": 26.0
+      "div_yield": 27.0
     },
     {
       "volume_rank": 15,
@@ -327,23 +344,6 @@
       "div_yield": 89.0
     },
     {
-      "volume_rank": 14,
-      "ticker": "8316.T",
-      "name": "Sumitomo Mitsui Financial Group, Inc.",
-      "price": 3256.0,
-      "volume": 18614000,
-      "volume_ratio": 0.97,
-      "funda_score": 36,
-      "chart_score": 32,
-      "total_score": 68,
-      "rsi": 41.4,
-      "range_pos": 78.9,
-      "per": 14.599587,
-      "pbr": 1.536331,
-      "roe": 8.6,
-      "div_yield": 2.73
-    },
-    {
       "volume_rank": 13,
       "ticker": "7267.T",
       "name": "Honda Motor Co., Ltd.",
@@ -375,7 +375,7 @@
       "per": 11.148193,
       "pbr": 1.1330522,
       "roe": 11.2,
-      "div_yield": 3.42
+      "div_yield": 3.43
     },
     {
       "volume_rank": 41,
@@ -426,7 +426,7 @@
       "per": 16.90594,
       "pbr": 2.2257316,
       "roe": 14.1,
-      "div_yield": 2.06
+      "div_yield": 2.04
     },
     {
       "volume_rank": 4,
@@ -443,7 +443,7 @@
       "per": 21.472937,
       "pbr": 3.9759471,
       "roe": 16.7,
-      "div_yield": 3.65
+      "div_yield": 3.64
     },
     {
       "volume_rank": 9,
@@ -494,7 +494,7 @@
       "per": 20.982222,
       "pbr": 2.5975728,
       "roe": 15.8,
-      "div_yield": 1.88
+      "div_yield": 1.91
     },
     {
       "volume_rank": 16,
@@ -514,23 +514,6 @@
       "div_yield": 0.0
     },
     {
-      "volume_rank": 35,
-      "ticker": "9433.T",
-      "name": "KDDI Corporation",
-      "price": 2893.0,
-      "volume": 9721700,
-      "volume_ratio": 1.29,
-      "funda_score": 33,
-      "chart_score": 30,
-      "total_score": 63,
-      "rsi": 22.1,
-      "range_pos": 72.8,
-      "per": 14.86181,
-      "pbr": 2.1483164,
-      "roe": 14.6,
-      "div_yield": 2.89
-    },
-    {
       "volume_rank": 50,
       "ticker": "8058.T",
       "name": "Mitsubishi Corporation",
@@ -545,7 +528,7 @@
       "per": 19.188375,
       "pbr": 1.7471054,
       "roe": 10.1,
-      "div_yield": 2.75
+      "div_yield": 2.74
     },
     {
       "volume_rank": 6,
@@ -593,7 +576,7 @@
       "total_score": 61,
       "rsi": 88.4,
       "range_pos": 99.1,
-      "per": 66.00571,
+      "per": 66.00676,
       "pbr": 28.892221,
       "roe": 56.9,
       "div_yield": 15.0
@@ -610,10 +593,27 @@
       "total_score": 61,
       "rsi": 72.6,
       "range_pos": 68.7,
-      "per": 45.937763,
+      "per": 45.93946,
       "pbr": 2.6404095,
       "roe": 30.9,
       "div_yield": 3.75
+    },
+    {
+      "volume_rank": 35,
+      "ticker": "9433.T",
+      "name": "KDDI Corporation",
+      "price": 2893.0,
+      "volume": 9721700,
+      "volume_ratio": 1.29,
+      "funda_score": 31,
+      "chart_score": 30,
+      "total_score": 61,
+      "rsi": 22.1,
+      "range_pos": 72.8,
+      "per": 15.761373,
+      "pbr": 2.1483164,
+      "roe": 14.6,
+      "div_yield": 2.9
     },
     {
       "volume_rank": 11,
@@ -644,10 +644,10 @@
       "total_score": 60,
       "rsi": 40.0,
       "range_pos": 29.1,
-      "per": 15.799286,
-      "pbr": 1.2479758,
+      "per": 15.904009,
+      "pbr": 1.2225562,
       "roe": 8.1,
-      "div_yield": 3.02
+      "div_yield": 3.01
     },
     {
       "volume_rank": 49,
@@ -661,7 +661,7 @@
       "total_score": 59,
       "rsi": 77.0,
       "range_pos": 65.0,
-      "per": 23.162043,
+      "per": 25.784676,
       "pbr": 3.1067736,
       "roe": 14.2,
       "div_yield": 79.0
@@ -800,7 +800,7 @@
       "per": 23.59407,
       "pbr": 3.6224163,
       "roe": 16.2,
-      "div_yield": 1.45
+      "div_yield": 1.41
     },
     {
       "volume_rank": 25,
@@ -834,7 +834,7 @@
       "per": 33.723198,
       "pbr": 2.7698867,
       "roe": 7.2,
-      "div_yield": 1.17
+      "div_yield": 1.16
     },
     {
       "volume_rank": 37,
@@ -848,7 +848,7 @@
       "total_score": 49,
       "rsi": 43.4,
       "range_pos": 32.8,
-      "per": 44.3609,
+      "per": 46.57895,
       "pbr": 0.5171636,
       "roe": 2.3,
       "div_yield": 2.91
@@ -890,7 +890,7 @@
       "per": 6.75435,
       "pbr": 1.8143039,
       "roe": 32.0,
-      "div_yield": 18.0,
+      "div_yield": 19.0,
       "ai_rank": 2,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -910,7 +910,7 @@
       "per": 5.3352885,
       "pbr": 0.9704374,
       "roe": 19.5,
-      "div_yield": 2.51,
+      "div_yield": 2.49,
       "ai_rank": 3,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -930,7 +930,7 @@
       "per": 7.55353,
       "pbr": 1.1114703,
       "roe": 15.3,
-      "div_yield": 2.54,
+      "div_yield": 2.55,
       "ai_rank": 4,
       "reason": "総合スコア上位のフォールバック",
       "verdict": "買い"
@@ -967,7 +967,7 @@
       "total_score": 73,
       "rsi": 64.5,
       "range_pos": 61.5,
-      "per": 17.938303,
+      "per": 17.939287,
       "pbr": 2.6982687,
       "roe": 11.6,
       "div_yield": 1.19,
@@ -1047,7 +1047,7 @@
       "total_score": 71,
       "rsi": 38.6,
       "range_pos": 84.7,
-      "per": 12.781186,
+      "per": 12.780219,
       "pbr": 1.2677808,
       "roe": 10.8,
       "div_yield": 2.79,
